@@ -1,3 +1,4 @@
+
 .App {
   text-align: center;
 }
@@ -28,11 +29,14 @@
   color: #61dafb;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+img.thumbnail {
+  width: 96px !important;
+  height: 96px !important;
 }
+
+div.icon {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+
