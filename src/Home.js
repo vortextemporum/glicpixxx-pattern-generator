@@ -16,9 +16,11 @@ export default function Home() {
   const [walletAddress, setWalletAddress] = useState("0xe49381184a49cd2a48e4b09a979524e672fdd10e")
   const [walletGLICPIX, setWalletGLICPIX] = useState([])
   const [walletImages, setWalletImages] = useState([])
-  const [button, setButton] = useState(false)
+  const [imagesNames, setImagesNames] = useState([])
 
   const [images, setImages] = useState([])
+  const [selectedIds, setSelectedIds] = useState([])
+
   const [minRes, setMinRes] = useState(32)
   const [maxMultiplier, setMaxMultiplier] = useState(1)
   const [tileWidth, setTileWidth] = useState(32)
@@ -30,7 +32,9 @@ export default function Home() {
   const onPickImages = (e) => {
     // console.log(e.map((item) => item["src"]))
     setImages(e.map((item) => item["src"]))
+    setSelectedIds(e.map((item) => item["value"]))
     console.log(images)
+    console.log(selectedIds)
     // setImages({e})
   }
 
@@ -62,25 +66,43 @@ export default function Home() {
 
   const getFiles = (walletGLICPIX) => {
     let images = []
+    let imagesNames = []
     const zeroPad = (num, places) => String(num).padStart(places, '0')
 
     walletGLICPIX.map((g) => {
-
         let type = g["attributes"][2]["value"]
         // console.log(type)
         if (type === "BOOMER CALM AF") {
-          images.push(`/imagesource/boomer_calm_af/${g["fileName"]}`)
+          let fileName = `/imagesource/boomer_calm_af/${g["fileName"]}`
+          let tokenId = g["tokenId"].toString()
+          
+          images.push(fileName)
+          imagesNames.push({"tokenId": tokenId, "fileName": fileName })
         } else if (type === "BOOMER HYPED AF") {
-          g["frame_order"].split(",").map((f) => {
-            images.push(`/imagesource/boomer_hyped_af/${g["fileName"].slice(0, -4)}/${f.replace(/ /g, '')}`)
+          g["frame_order"].split(",").map((f, index) => {
+            let fileName = `/imagesource/boomer_hyped_af/${g["fileName"].slice(0, -4)}/${f.replace(/ /g, '')}`
+            let tokenId = `${g["tokenId"]}_frame_${index}`
+
+            images.push(fileName)
+            imagesNames.push({ "tokenId": tokenId, "fileName": fileName })
           })
         } else if (type === "BASTARD CALM AF") {
-          images.push(`/imagesource/bastard_calm_af/${g["fileName"]}`)
+          let fileName = `/imagesource/bastard_calm_af/${g["fileName"]}`
+          let tokenId = g["tokenId"].toString()
+          
+          images.push(fileName)
+          imagesNames.push({"tokenId": tokenId, "fileName": fileName })
 
         } else if (type === "BASTARD HYPED AF") {
           for (let i = 0; i < 100; i++) {
-            let name = `${g["fileName"].split("-")[0]}-gen${zeroPad(i,2)}`   
-            images.push(`/imagesource/bastard_hyped_af/${g["fileName"].slice(0, -4)}/${name}.png`)
+            let name = `${g["fileName"].split("-")[0]}-gen${zeroPad(i,2)}`
+            
+            let fileName = `/imagesource/bastard_hyped_af/${g["fileName"].slice(0, -4)}/${name}.png`
+            let tokenId = `${g["tokenId"]}_frame_${zeroPad(i,2)}`
+
+            images.push(fileName)
+            imagesNames.push({"tokenId": tokenId, "fileName": fileName })
+
           }
           
         }
@@ -89,6 +111,8 @@ export default function Home() {
 
     // console.log(images)
     setWalletImages(images)
+    console.log("imagesNames", imagesNames)
+    setImagesNames(imagesNames)
   }
 
   // useEffect(  async() => {
@@ -128,13 +152,14 @@ export default function Home() {
         <div className="flex flex-col items-center">
 
         <ImagePicker 
-          images={walletImages.map((image, i) => ({src: image, value: i}))}
+          images={imagesNames.map((item, i) => ({src: item["fileName"], value: item["tokenId"]}))}
           onPick={(e) => onPickImages(e)}
           multiple
           />
         <div>
 
         <p className="text-2xl font-bold p-8">AMOUNT OF IMAGES SELECTED: {images.length}</p>
+        <p className="text-2xl font-bold p-8">SELECTED IDS: {selectedIds.join(", ")}</p>
         {/* <p className="text-2xl font-bold p-8">IMAGES SELECTED: {images.join(", ")}</p> */}
 
         </div>

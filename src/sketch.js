@@ -29,7 +29,7 @@ export default function sketch(p5) {
 
       }
       if (props.minRes) {
-        console.log("FILENAMES PROP",props.minRes)      
+        // console.log("FILENAMES PROP",props.minRes)      
         minreso = parseInt(props.minRes)
         p5.resizeCanvas(ww(), hh());
 
@@ -55,7 +55,7 @@ export default function sketch(p5) {
       images = [];
       let i = 0
       let im;  
-      console.log(filenames)
+    //   console.log(filenames)
       for (im in filenames) {
         images.push( p5.loadImage(filenames[im]));
       }
@@ -100,7 +100,7 @@ export default function sketch(p5) {
     function generateImageList(patternType) {
       let imageList = []
       let totalTiles = tilewidth * tileheight
-      console.log("PATTERN TYPE:",patternType)
+    //   console.log("PATTERN TYPE:",patternType)
       switch(patternType) {
         case "ca":
             let n1  = p5.floor(p5.random() * images.length)
@@ -156,7 +156,7 @@ export default function sketch(p5) {
         case "single":
           let randImg = (p5.floor(p5.random() * images.length))
           imageList = Array(totalTiles).fill(randImg)
-          console.log(imageList)
+        //   console.log(imageList)
           break;
         default:
           imageList = [0]
@@ -171,9 +171,9 @@ export default function sketch(p5) {
     function generate() {
         let w = ww()
         let h = hh()
-        console.log(w,h)
+        // console.log(w,h)
         let imageList = generateImageList(patternType);
-        console.log(imageList)
+        // console.log(imageList)
         let im;
         let i = 0
         // p5.tint(p5.random() * 255, p5.random() * 255, p5.random() * 255);
