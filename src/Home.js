@@ -9,12 +9,7 @@ import "react-image-picker/dist/index.css";
 import { ReactP5Wrapper } from "react-p5-wrapper";
 import sketch from "./sketch.js"
 
-
-
 // BACKGROUND SKETCH
-
-
-
 
 export default function Home() {
 
@@ -137,7 +132,6 @@ export default function Home() {
           onPick={(e) => onPickImages(e)}
           multiple
           />
-
         <div>
 
         <p className="text-2xl font-bold p-8">AMOUNT OF IMAGES SELECTED: {images.length}</p>

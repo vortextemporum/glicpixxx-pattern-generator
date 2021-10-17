@@ -26,20 +26,25 @@ export default function sketch(p5) {
         console.log("FILENAMES PROP",props.filenames)      
         filenames = props.filenames
         p5.preload()
+
       }
       if (props.minRes) {
         console.log("FILENAMES PROP",props.minRes)      
         minreso = parseInt(props.minRes)
         p5.resizeCanvas(ww(), hh());
+
       }
       if (props.tileWidth) {
         tilewidth = parseInt(props.tileWidth)
+
       }
       if (props.tileHeight) {
         tileheight = parseInt(props.tileHeight)
+
       }
       if (props.patternType) {
         patternType = props.patternType;
+
       }
       if (props.caRule) {
         caRule = props.caRule
@@ -151,6 +156,8 @@ export default function sketch(p5) {
         case "single":
           let randImg = (p5.floor(p5.random() * images.length))
           imageList = Array(totalTiles).fill(randImg)
+          console.log(imageList)
+          break;
         default:
           imageList = [0]
   
@@ -169,32 +176,18 @@ export default function sketch(p5) {
         console.log(imageList)
         let im;
         let i = 0
+        // p5.tint(p5.random() * 255, p5.random() * 255, p5.random() * 255);
+
         for (var y = 0; y < h; y = y + minreso) {
+
           for (var x = 0; x < w; x = x + minreso) {
+              p5.push()
               im = imageList[i]
               p5.image(images[im], x, y, minreso, minreso);
               i++
+              p5.pop()
         }}
   
-      //   if (p5.random() < 0.20) {
-      //     for (var y = 0; y < h; y = y + minreso) {
-      //       for (var x = 0; x < w; x = x + minreso) {
-      //           p5.image(images[p5.floor(p5.random() * images.length)], x, y, minreso, minreso);
-      //       }}
-      //   } else
-      //   {
-      //   var imim = images[p5.floor(p5.random() * images.length)] 
-      //   //image(images[0],0,0);
-      //   for (var y = 0; y < h; y = y + minreso) {
-      //       for (var x = 0; x < w; x = x + minreso) {
-      //           p5.image(imim, x, y, minreso, minreso);
-      //           // image(images[i % images.length], x, y, 32, 32);
-    
-      //           // i++;
-    
-      //       }
-      //   }
-      // }
     }
   
     
