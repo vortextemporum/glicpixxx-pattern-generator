@@ -1,6 +1,7 @@
 const Serialism = require('total-serialism');
 const Algo = Serialism.Algorithmic
 const Rand = Serialism.Stochastic;
+const Gen = Serialism.Generative;
 
 export default function sketch(p5) {
     var images = [];
@@ -138,6 +139,11 @@ export default function sketch(p5) {
         case "seq":
           for(let i=0; i<totalTiles;i++) {imageList.push(i%images.length)}
           break;
+        case "seqPalindrome":
+          let sequence = Gen.spread(images.length).concat(Gen.spread(images.length).reverse());
+          for(let i=0; i<totalTiles;i++) {
+            imageList.push(sequence[i % sequence.length])}
+          break;
         case "seqrow":
           for (var y = 0; y < tileheight; y++) {
             let rowSeq = y % images.length
@@ -152,6 +158,32 @@ export default function sketch(p5) {
             for (var y = 0; y < tileheight; y++) {       
                 imageList[ (tilewidth * y) + x ] = colSeq;
           }}
+          break;
+        // case "euclid":
+        //   imageList = Array(totalTiles).fill(0)
+        //   for (var x = 0; x < tilewidth; x++) {
+        //     let colSeq = x % images.length
+        //     for (var y = 0; y < tileheight; y++) {       
+        //         imageList[ (tilewidth * y) + x ] = colSeq;
+        //   }}
+        //   break;
+        // case "hexbeat":
+        //   imageList = Array(totalTiles).fill(0)
+        //   for (var x = 0; x < tilewidth; x++) {
+        //     let colSeq = x % images.length
+        //     for (var y = 0; y < tileheight; y++) {       
+        //         imageList[ (tilewidth * y) + x ] = colSeq;
+        //   }}
+        //   break;
+        case "drunk":
+          let nextNumber = (p5.floor(p5.random() * images.length))
+          for(let i=0; i<totalTiles;i++) {
+            
+            nextNumber = (Rand.coin(1)[0] == 1) ? ((nextNumber + 1) % images.length) : (nextNumber == 0) ? (images.length - 1) : nextNumber-1
+            
+            imageList.push(nextNumber)
+          }
+          console.log(imageList)
           break;
         case "single":
           let randImg = (p5.floor(p5.random() * images.length))

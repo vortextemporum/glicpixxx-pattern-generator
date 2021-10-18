@@ -236,9 +236,11 @@ className="block  bg-white border border-gray-400 hover:border-gray-500 px-4 py-
     <option name="imagePat" value="randcol">RANDOM COLUMN</option>
     <option name="imagePat" value="randrow">RANDOM ROW</option>
     <option name="imagePat" value="seq">SEQ</option>
+    <option name="imagePat" value="seqPalindrome">SEQ PALINDROME</option>
     <option name="imagePat" value="seqcol">SEQ COLUMN</option>
     <option name="imagePat" value="seqrow">SEQ ROW</option>
     <option name="imagePat" value="ca">CELLULAR AUTOMATA</option>
+    <option name="imagePat" value="drunk">DRUNK</option>
     <option name="imagePat" value="single">SINGLE</option>
 </select>
 </div>
