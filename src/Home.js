@@ -160,6 +160,7 @@ export default function Home() {
 
         <div className="flex flex-col flex-wrap justify-center items-center w-full text-6xl flex-wrap">
         <p className="font-bold text-3xl my-8">ENTER AN ETHEREUM ADDRESS MANUALLY OR SIGN IN WITH YOUR WALLET. DEFAULT WALLET IS GLICPIXYZ.ETH VAULT</p>
+        <p className="font-bold text-2xl my-8">P.S. FEEL FREE TO DONATE YOUR LEAST FAVOURITE GLICPIXXXVER002 TO <a className="underline text-red-500" target="_blank" href="https://app.ens.domains/name/glicpixyz.eth/details">GLICPIXYZ.ETH</a> SO BERK CAN MAKE MORE DESIGNS FOR HIMSELF && HERE WILL BE MORE  GLICPIXXX TO PLAY WITH BY DEFAULT</p>
 
         <input type="text" className="text-3xl p-8 mx-12 text-black w-1/2 text-center" value={walletAddress} placeholder="Enter Wallet Address" onChange={(e) => setWalletAddress(e.target.value)} />
           <div className="p-6" id="nav-content">
