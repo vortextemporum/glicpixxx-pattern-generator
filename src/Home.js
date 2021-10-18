@@ -13,6 +13,8 @@ import sketch from "./sketch.js"
 
 export default function Home() {
 
+  const [signedIn, setSignedIn] = useState(false)
+
   const [walletAddress, setWalletAddress] = useState("0xe49381184a49cd2a48e4b09a979524e672fdd10e")
   const [walletGLICPIX, setWalletGLICPIX] = useState([])
   const [walletImages, setWalletImages] = useState([])
@@ -29,6 +31,7 @@ export default function Home() {
   const [patternType, setPatternType] = useState('rand')
   const [caRule, setCaRule] = useState(1)
 
+
   const onPickImages = (e) => {
     // console.log(e.map((item) => item["src"]))
     setImages(e.map((item) => item["src"]))
@@ -38,6 +41,34 @@ export default function Home() {
     // setImages({e})
   }
 
+  async function signIn() {
+    if (typeof window.web3 !== 'undefined') {
+      // Use existing gateway
+      window.web3 = new Web3(window.ethereum);
+     
+    } else {
+      alert("No Ethereum interface injected into browser. Read-only access");
+    }
+
+    window.ethereum.enable()
+      .then(function (accounts) {
+        window.web3.eth.net.getNetworkType()
+        .then((network) => {console.log(network);if(network != "main"){alert("You are on " + network+ " network. Change network to mainnet or you won't be able to do shit here")} });  
+        let wallet = accounts[0]
+        setWalletAddress(wallet)
+        setSignedIn(true)
+      })
+      .catch(function (error) {
+      // Handle error. Likely the user rejected the login
+      console.error(error)
+    })
+  }
+
+//
+
+  async function signOut() {
+    setSignedIn(false)
+  }
 
   const getGlicpix = async () => {
       const web3infura = new Web3(new Web3.providers.HttpProvider(apiUrl));
@@ -124,12 +155,21 @@ export default function Home() {
   
       <main className="flex flex-col items-center w-full text-center">
         <h1 className="font-bold text-6xl my-8">GLICPIXXX ARTSY FART PATTERN GENERATOR</h1>
-        <h1 className="font-bold text-5xl my-8">VERSION 0.00000000000000000000000000000000000000000000001</h1>
+        <h1 className="font-bold text-5xl my-8">VERSION 0.00000000000000000000000000000000000000000000004</h1>
+        <a className="font-bold text-5xl my-8 underline" target="_blank" href="https://github.com/vortextemporum/glicpixxx-pattern-generator">SOURCE CODE</a>
 
-        <div className="flex justify-center items-center w-full text-6xl flex-wrap">
+        <div className="flex flex-col flex-wrap justify-center items-center w-full text-6xl flex-wrap">
+        <p className="font-bold text-3xl my-8">ENTER AN ETHEREUM ADDRESS MANUALLY OR SIGN IN WITH YOUR WALLET. DEFAULT WALLET IS GLICPIXYZ.ETH VAULT</p>
 
- 
-          <input type="text" className="text-3xl p-8 mx-12 text-black" defaultValue="0xe49381184a49cd2a48e4b09a979524e672fdd10e" placeholder="Enter Wallet Address" onChange={(e) => setWalletAddress(e.target.value)} />
+        <input type="text" className="text-3xl p-8 mx-12 text-black w-1/2 text-center" value={walletAddress} placeholder="Enter Wallet Address" onChange={(e) => setWalletAddress(e.target.value)} />
+          <div className="p-6" id="nav-content">
+              <div className="flex auth text-2xl text-black font-bold  justify-center items-center ">
+                {!signedIn ? <button onClick={signIn} className="inline-block border-2 border-black bg-white border-opacity-100 no-underline hover:text-black py-2 px-4 mx-4 shadow-lg hover:bg-blue-500 hover:text-gray-100">Connect Wallet with Metamask</button>
+                // <button  className="inline-block border-2 border-black bg-white border-opacity-100 no-underline hover:text-black font-medium text-lg py-2 px-4 mx-4 shadow-lg hover:bg-blue-500 hover:text-gray-100 navbarshadow">Connect Wallet</button>
+                :
+                <button onClick={signOut} className="inline-block border-2 border-black bg-white border-opacity-100 no-underline hover:text-black py-2 px-4 mx-4 shadow-lg hover:bg-blue-500 hover:text-gray-100">Wallet Connected: {walletAddress}</button>}
+              </div>
+            </div>
           <button className="bg-white  p-4 my-8 text-4xl text-black border-4 border-white hover:border-black" onClick={() => { getGlicpix() } }> Get Wallet GLICPIXXXVER002 </button>
 
         </div>
