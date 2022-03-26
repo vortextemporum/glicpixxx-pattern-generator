@@ -392,6 +392,9 @@ export default function Home() {
             <option name="zoomType" value="spreadxy">
               SPREADXY
             </option>
+            <option name="zoomType" value="best">
+              BEST
+            </option>
           </select>
         </div>
 

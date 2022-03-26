@@ -384,6 +384,15 @@ export default function sketch(p5) {
                     p5.image(images[im], x, y, minreso * z, minreso * z);
                 } else if (zoomType === 'spreadxy') {
                   p5.image(images[im], x, y, minreso * p5.map(Math.random(),0,1,1,maxZoom), minreso * p5.map(Math.random(),0,1,1,maxZoom));
+                } else if (zoomType === 'best') {
+                  let z = p5.map(Math.random(),0,1,1,maxZoom)
+                  let dWidth = minreso
+                  let dHeight = minreso
+                  let sx = p5.map(Math.random(),0,1,0,minreso- (minreso / z))
+                  let sy = p5.map(Math.random(),0,1,0,minreso- (minreso / z))
+                  let sWidth = minreso / z
+                  let sHeight = minreso / z
+                  p5.image(images[im], x,y,dWidth,dHeight,sx,sy,sWidth,sHeight);
                 }
               } else {
                 p5.image(images[im], x, y, minreso, minreso);
