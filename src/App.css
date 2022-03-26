@@ -30,8 +30,8 @@
 }
 
 img.thumbnail {
-  width: 96px !important;
-  height: 96px !important;
+  width: 64px !important;
+  height: 64px !important;
 }
 
 div.icon {
