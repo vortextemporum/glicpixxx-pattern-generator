@@ -1,6 +1,9 @@
-
 .App {
   text-align: center;
+}
+
+img {
+  image-rendering: pixelated;
 }
 
 .App-logo {
@@ -29,14 +32,6 @@
   color: #61dafb;
 }
 
-img.thumbnail {
-  width: 64px !important;
-  height: 64px !important;
-}
 
-div.icon {
-  width: 32px !important;
-  height: 32px !important;
-}
 
 

@@ -1,13 +1,33 @@
+:root {
+  --thumb-value: 64px !important;
+  --icon-value: 32px !important;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@700&display=swap');
+
+
+
+img.thumbnail {
+  width: var(--thumb-value) !important;
+  height: var(--thumb-value) !important;
+}
+
+div.icon {
+  width: var(--icon-value) !important;
+  height: var(--icon-value) !important;
+}
+
+.source-code {
+
+  font-family: 'Source Code Pro', monospace;
+}
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -16,3 +36,14 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.box-shadow-black {
+  box-shadow: 0.125rem 0.125rem 0 0px #000;
+}
+
+/* 
+@media (max-width: 700px) {
+  .react-dat-gui-demo {
+    flex-direction: column !important;
+  }
+} */

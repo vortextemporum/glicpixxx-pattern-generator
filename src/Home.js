@@ -1,5 +1,10 @@
 // import Head from 'next/head'
 import { useEffect, useState } from "react";
+import { saveAs } from "file-saver";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+
+// import { useControls } from 'leva'
+
 import { apiUrl, BATCHER_ADDRESS, BATCHER_ABI } from "./config";
 import Web3 from "web3";
 
@@ -8,10 +13,14 @@ import "react-image-picker/dist/index.css";
 
 import { ReactP5Wrapper } from "react-p5-wrapper";
 import sketch from "./sketch.js";
+// import { useTweaks } from "use-tweaks";
 
 // BACKGROUND SKETCH
 
 export default function Home() {
+  // const speed  = useTweaks({ });
+  // const { width, height, zoomchance } = useControls({ width: 0, aNumber: 0 })
+
   const [signedIn, setSignedIn] = useState(false);
 
   const [walletAddress, setWalletAddress] = useState(
@@ -20,6 +29,7 @@ export default function Home() {
   const [walletGLICPIX, setWalletGLICPIX] = useState([]);
   const [walletImages, setWalletImages] = useState([]);
   const [imagesNames, setImagesNames] = useState([]);
+  const [thumbSize, setThumbSize] = useState(64);
 
   const [images, setImages] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
@@ -34,6 +44,38 @@ export default function Home() {
   const [patternType, setPatternType] = useState("single");
   const [zoomType, setZoomType] = useState("fixed");
   const [caRule, setCaRule] = useState(1);
+
+  const zipImages = () => {
+    const zip = require("jszip")();
+    let files = imagesNames.map((item, i) => item["fileName"]);
+    for (let file = 0; file < files.length; file++) {
+      // Zip file with the file name.
+      zip.file(files[file], files[file]);
+    }
+    zip.generateAsync({ type: "blob" }).then((content) => {
+      saveAs(content, `${walletAddress}.zip`);
+    });
+  };
+
+  const changeThumbSize = (size) => {
+    console.log(size);
+    const timing = getComputedStyle(document.documentElement).getPropertyValue(
+      "--thumb-value"
+    );
+    console.log("timig", timing);
+    // console.log("timig",`${size}px !important`)
+    setThumbSize(size);
+    document.documentElement.style.setProperty(
+      "--thumb-value",
+      size + "px",
+      "important"
+    );
+    document.documentElement.style.setProperty(
+      "--icon-value",
+      size / 2 + "px",
+      "important"
+    );
+  };
 
   const onPickImages = (e) => {
     // console.log(e.map((item) => item["src"]))
@@ -83,10 +125,12 @@ export default function Home() {
 
   const getGlicpix = async () => {
     const web3infura = new Web3(new Web3.providers.HttpProvider(apiUrl));
+    console.log(web3infura);
     const batchercontract = new web3infura.eth.Contract(
       BATCHER_ABI,
       BATCHER_ADDRESS
     );
+    console.log(batchercontract);
     // const walletAddress2 = "0xe49381184a49cd2a48e4b09a979524e672fdd10e"
     const glicpixxxaddress = "0x1c60841b70821dca733c9b1a26dbe1a33338bd43";
 
@@ -176,49 +220,50 @@ export default function Home() {
     console.log("imagesNames", imagesNames);
     setImagesNames(imagesNames);
   };
-
-  // useEffect(  async() => {
-  //   getGlicpix()
-  // } , [])
+  useEffect(async () => {
+    // getGlicpix();
+  }, []);
 
   return (
-    <div className="flex flex-col min-h-screen py-2 bg-black text-white">
-      <main className="flex flex-col w-full px-2">
-        <h1 className="font-bold text-3xl my-2 text-center">
-          GLICPIXXX ARTSY FART PATTERN GENERATOR
-        </h1>
-        <h1 className="font-bold text-lg my-2 text-center">
-          VERSION 0.00000000000000000000000000000000000000000000005
-        </h1>
-        <a
-          className="font-bold text-lg my-2 underline text-center"
-          target="_blank"
-          href="https://github.com/vortextemporum/glicpixxx-pattern-generator"
-        >
-          SOURCE CODE ON GITHUB
-        </a>
-        <h1 className="font-bold text-sm my-2 underline">
-          Last update: Better looking webpage - hue shift option
-        </h1>
+    <div className="source-code flex flex-col min-h-screen text-black">
+      <main className="w-full">
+        <div className="px-2 py-2 bg-pink-300 ">
+          <h1 className="font-bold text-3xl my-2 text-center">
+            GLICPIXXX ARTSY FART PATTERN GENERATOR
+          </h1>
+          <h1 className="font-bold text-lg my-2 text-center">v69.420</h1>
+        </div>
+        <div className="px-6 bg-yellow-300 py-4 text-center">
+          <a
+            className="font-bold text-lg my-2 underline "
+            target="_blank"
+            href="https://github.com/vortextemporum/glicpixxx-pattern-generator"
+          >
+            SOURCE CODE ON GITHUB
+          </a>
+          {/* <h1 className="font-bold text-sm my-2 underline">
+            Last update: Better looking webpage - hue shift option
+          </h1> */}
+        </div>
 
-        <div className="flex flex-col flex-wrap w-full flex-wrap">
-          <p className="font-bold text-md my-2">
-            ENTER AN ETHEREUM ADDRESS MANUALLY BELOW OR SIGN IN WITH YOUR
-            WALLET. DEFAULT WALLET IS GLICPIXYZ.ETH VAULT
+        <div className="flex flex-col flex-wrap bg-green-400 px-6 py-2">
+          <p className="font-bold text-lg my-2">
+            ENTER AN ETHEREUM ADDRESS BELOW, DEFAULT WALLET BELOW IS BERK'S
+            GLICPIXYZ.ETH VAULT.
           </p>
 
           <input
             type="text"
-            className="text-xl p-2 my-2 text-black text-center"
+            className="text-xl p-2 my-2 text-black text-center font-bold box-shadow-black border-2 border-black"
             value={walletAddress}
             placeholder="Enter Wallet Address"
             onChange={(e) => setWalletAddress(e.target.value)}
           />
-          <div className="flex auth text-lg text-black justify-center">
+          {/* <div className="flex auth text-lg text-black justify-center">
             {!signedIn ? (
               <button
                 onClick={signIn}
-                className="inline-block border-2 border-black bg-white border-opacity-100 no-underline hover:text-black py-2 px-4 shadow-lg hover:bg-blue-500 hover:text-gray-100 font-bold"
+                className="inline-block border-2 border-black box-shadow-black bg-white border-opacity-100 no-underline hover:text-black py-2 px-4 shadow-lg hover:bg-blue-500 hover:text-gray-100 font-bold"
               >
                 Click to Connect Wallet with Metamask
               </button>
@@ -230,56 +275,88 @@ export default function Home() {
                 Wallet Connected: {walletAddress}
               </button>
             )}
-          </div>
+          </div> */}
 
-          <p className="font-bold text-lg my-2">
-            P.S. FEEL FREE TO DONATE YOUR LEAST FAVOURITE GLICPIXXXVER002 TO{" "}
-            <a
-              className="underline text-red-500"
-              target="_blank"
-              href="https://app.ens.domains/name/glicpixyz.eth/details"
-            >
-              GLICPIXYZ.ETH
-            </a>{" "}
-            SO BERK CAN MAKE MORE DESIGNS FOR HIMSELF && HERE WILL BE MORE
-            GLICPIXXX TO PLAY WITH BY DEFAULT
-          </p>
           <button
-            className="bg-white my-2 py-2 text-lg font-bold text-black border-4 border-white hover:border-black"
+            className="bg-white box-shadow-black my-2 py-2 text-lg font-bold text-black border-2 border-black hover:bg-black hover:text-white hover:border-white"
             onClick={() => {
               getGlicpix();
             }}
           >
             {" "}
-            Click Here to Load GLICPIXXXVER002 in the Wallet{" "}
+            Click Here to Load GLICPIXXXVER002 in {walletAddress}{" "}
           </button>
-          <button
-            className="bg-white my-2 py-2 text-sm font-bold text-black border-4 border-white hover:border-black"
+          {imagesNames.length > 0 ? (
+            <button
+              className="bg-white my-2 py-2 text-lg font-bold text-black border-2 border-black hover:bg-black hover:text-white hover:border-white box-shadow-black"
+              onClick={() => {
+                zipImages();
+              }}
+            >
+              {" "}
+              DOWNLOAD WALLET GLICPIXXX AS ZIP FILE
+            </button>
+          ) : (
+            <></>
+          )}
+          {/* <button
+            className="bg-white box-shadow-black my-2 py-2 px-2 text-md font-bold text-black border-2 border-black hover:bg-black hover:text-white hover:border-white"
             onClick={() => {
               getAllGlicpix();
             }}
           >
             {" "}
             Or Click Here to Load Every GLICPIXXXVER002 in Existence (warning,
-            loading may take super long and it may crash your browser and server may not respond lol){" "}
-          </button>
+            loading may take super long and it may crash your browser and server
+            may not respond lol){" "}
+          </button> */}
         </div>
 
-        {/* <div className="flex flex-wrap">
-          <img src={walletImages[0]} />
-          {
-            walletImages.map((item,idx) => {
-              return(
+        <div className="bg-purple-200">
+          <p className="font-bold text-lg py-2 px-6">
+            p.s: FEEL FREE TO DONATE SOME GLICPIXXXVER002 TO{" "}
+            <a
+              className="underline text-red-500"
+              target="_blank"
+              href="https://app.ens.domains/name/glicpixyz.eth/details"
+            >
+              GLICPIXYZ.ETH VAULT
+            </a>{" "}
+            . THE GLICPIXXX IN IT ARE FREE TO USE BY ANYONE FOR ANYTHING, AND
+            THEY WILL BE MY COMPANY ASSET FOR TEXTILE DESIGN, VIDEOGAMES, ART
+            ETCETERA.
+          </p>
+        </div>
 
-              <img key={idx} src={item} />
+        <div className="bg-black text-white">
+          <p className="font-bold text-2xl text-center py-2 px-6">
+            CHOOSE GLICPIXXX:
+          </p>
 
-              )
-            })
-          }
+          <div className="flex justify-center space-x-4">
+            <p>THUMBNAIL SIZE:</p>
+            <input
+              className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
+              onChange={(e) => changeThumbSize(e.target.value)}
+              type="number"
+              min={32}
+              max={128}
+              value={thumbSize}
+            />
+            <p>
+              <input
+                type="range"
+                name="size"
+                min="32"
+                max="128"
+                defaultValue="64"
+                onChange={(e) => changeThumbSize(e.target.value)}
+              />
+            </p>
+          </div>
+        </div>
 
-        </div> */}
-
-        <div className="">
+        <div className="bg-black py-4 flex justify-center">
           <ImagePicker
             images={imagesNames.map((item, i) => ({
               src: item["fileName"],
@@ -288,22 +365,39 @@ export default function Home() {
             onPick={(e) => onPickImages(e)}
             multiple
           />
-          
         </div>
-        <div>
-            <p className="text-md  font-bold p-2">
-              AMOUNT OF IMAGES SELECTED: {images.length}
-            </p>
-            <p className="text-md font-bold p-2">
-              SELECTED IDS: {selectedIds.join(", ")}
-            </p>
-            {/* <p className="text-lg font-bold p-8">IMAGES SELECTED: {images.join(", ")}</p> */}
+        <div className="bg-pink-300 py-6 px-6">
+          {/* <p className="text-xl font-bold p-2">
+            AMOUNT OF IMAGES SELECTED: {images.length}
+          </p> */}
+          <p className="text-xl font-bold p-2">
+            SELECTED GLICPIXXX:
+            {/* SELECTED IDS: {selectedIds.join(", ")} */}
+          </p>
+
+          <div className="flex flex-wrap justify-center items-center space-x-4 space-y-2">
+            {/* <img src={walletImages[0]} /> */}
+            {images.map((item, idx) => {
+              console.log(item);
+
+              return (
+                <div className="p-2 border-2 border-black bg-white">
+                  <span>{selectedIds[idx]}</span>
+                  <img key={idx} src={item} width={"64px"} />
+                </div>
+              );
+            })}
           </div>
 
-          {/* <button className="bg-white  p-4 my-8 text-4xl text-black border-4 border-white hover:border-black" onClick={() => { } }> Deselect all images </button> */}
+          {images.map((item, i) => {
+            <img key={i} src={item} />;
+          })}
+        </div>
+
+        {/* <button className="bg-white  p-4 my-8 text-4xl text-black border-4 border-white hover:border-black" onClick={() => { } }> Deselect all images </button> */}
       </main>
 
-      <div className="flex items-center justify-around flex-wrap">
+      <div className="flex flex-col border-2  p-4 bg-yellow-300">
         {/* <div className="flex items-center">
           <p className="text-lg font-bold p-8">MIN TILE RESOLUTION:</p>
 
@@ -325,37 +419,56 @@ export default function Home() {
             </option>
           </select>
         </div> */}
+        <p className="font-bold text-center mb-2">PARAMETERS</p>
 
-       
-
-        <div className="flex items-center text-sm">
-          <p className="font-bold p-4">TILE WIDTH:</p>
+        <div className="flex items-center text-sm my-1 space-x-4">
+          <p className="font-bold mr-2">TILE WIDTH:</p>
           <input
-            className="block  bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight font-bold text-black"
+            className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
             onChange={(e) => setTileWidth(e.target.value)}
             type="number"
             min={1}
             max={128}
             value={tileWidth}
           />
+          <p>
+            <input
+              type="range"
+              name="size"
+              min="32"
+              max="256"
+              defaultValue="32"
+              onChange={(e) => setTileWidth(e.target.value)}
+            />
+          </p>
         </div>
 
-        <div className="flex items-center text-sm">
-          <p className=" font-bold p-4">TILE HEIGHT:</p>
+        <div className="flex items-center text-sm my-1 space-x-4">
+          <p className=" font-bold">TILE HEIGHT:</p>
           <input
-            className="block  bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight font-bold text-black"
+            className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
             onChange={(e) => setTileHeight(e.target.value)}
             type="number"
             min={1}
             max={128}
             value={tileHeight}
           />
+          <p>
+            <input
+              type="range"
+              name="size"
+              min="32"
+              max="256"
+              defaultValue="32"
+              onChange={(e) => setTileHeight(e.target.value)}
+            />
+          </p>
         </div>
 
-        <div className="flex items-center text-sm">
-          <p className=" font-bold p-8">ZOOM CHANCE:</p>
+        <div className="flex items-center text-sm my-1 space-x-4">
+          <p className=" font-bold">ZOOM CHANCE:</p>
           <input
-            className="block  bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight  font-bold text-black"
+            className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
             onChange={(e) => setzoomChance(e.target.value)}
             type="number"
             min={0}
@@ -363,24 +476,44 @@ export default function Home() {
             step={10}
             value={zoomChance}
           />
+          <p>
+            <input
+              type="range"
+              name="size"
+              min="0"
+              max="100"
+              defaultValue="0"
+              onChange={(e) => setzoomChance(e.target.value)}
+            />
+          </p>
         </div>
-        <div className="flex items-center text-sm">
-          <p className="font-bold p-8">MAX ZOOM:</p>
+        <div className="flex items-center text-sm my-1 space-x-4">
+          <p className="font-bold">MAX ZOOM:</p>
           <input
-            className="block  bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight font-bold text-black"
+            className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
             onChange={(e) => setmaxZoom(e.target.value)}
             type="number"
             min={1}
-            max={8}
+            max={16}
             value={maxZoom}
           />
+          <p>
+            <input
+              type="range"
+              name="size"
+              min="1"
+              max="16"
+              defaultValue="1"
+              onChange={(e) => setmaxZoom(e.target.value)}
+            />
+          </p>
         </div>
 
-        <div className="flex items-center text-sm">
-          <p className="font-bold p-4">ZOOM TYPE:</p>
+        <div className="flex items-center text-sm my-1">
+          <p className="font-bold mr-2">ZOOM TYPE:</p>
 
           <select
-            className="block  bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight font-bold text-black"
+            className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
             onChange={(e) => setZoomType(e.target.value)}
           >
             <option name="zoomType" value="fixed">
@@ -398,13 +531,11 @@ export default function Home() {
           </select>
         </div>
 
-        
-
-        <div className="flex items-center text-sm">
-          <p className="font-bold p-4">IMAGE PATTERN TYPE:</p>
+        <div className="flex items-center text-sm my-1">
+          <p className="font-bold mr-2">IMAGE PATTERN TYPE:</p>
 
           <select
-            className="block  bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight font-bold text-black"
+            className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
             onChange={(e) => setPatternType(e.target.value)}
           >
             <option name="imagePat" value="single">
@@ -437,29 +568,38 @@ export default function Home() {
             <option name="imagePat" value="drunk">
               DRUNK
             </option>
-            
           </select>
         </div>
         {patternType === "ca" ? (
-          <div className="flex items-center text-sm">
-            <p className="font-bold p-4">CA RULE:</p>
+          <div className="flex items-center text-sm my-1">
+            <p className="font-bold mr-2">CA RULE:</p>
             <input
-              className="block  bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight font-bold text-black"
+              className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
               onChange={(e) => setCaRule(e.target.value)}
               type="number"
               min={1}
               max={256}
               value={caRule}
             />
+            <p>
+              <input
+                type="range"
+                name="size"
+                min="1"
+                max="256"
+                defaultValue="1"
+                onChange={(e) => setCaRule(e.target.value)}
+              />
+            </p>
           </div>
         ) : (
           <></>
         )}
-        <div className="flex items-center text-sm">
-          <p className="font-bold p-4">HUE SHIFT:</p>
+        <div className="flex items-center text-sm my-1">
+          <p className="font-bold mr-2">HUE SHIFT:</p>
 
           <select
-            className="block  bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight font-bold text-black"
+            className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
             onChange={(e) => setHueType(e.target.value)}
           >
             <option name="hue" value="huenone">
@@ -475,11 +615,24 @@ export default function Home() {
               STEP
             </option>
           </select>
+
+          {hueType === "hueseq" ? (
+            <div className="flex items-center text-sm my-1">
+              <p className="font-bold mr-2">HUE STEP</p>
+              <input
+                className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
+                onChange={(e) => setCaRule(e.target.value)}
+                type="number"
+                min={1}
+                max={360}
+                value={caRule}
+              />
+            </div>
+          ) : (
+            <></>
+          )}
         </div>
 
-       
-      </div>
-      <div className="flex justify-around flex-wrap">
         <button
           id="generatebutton"
           className="bg-black text-white hover:bg-white hover:text-black p-2 my-2 text-xl border-4 border-white hover:border-black"
@@ -489,38 +642,29 @@ export default function Home() {
         </button>
         <button
           id="saveimage"
-          className="bg-black text-white hover:bg-white hover:text-black p-2 my-2 text-xl border-4 border-white hover:border-black"
+          className="bg-black text-white hover:bg-white hover:text-black p-2 mt-2 text-xl border-4 border-white hover:border-black"
         >
           {" "}
           SAVE IMAGE
         </button>
       </div>
-      {/* <div className="p-6 border-4 border-black" id="canvasinfo">
-  <div className="mx-auto text-lg">
-    <p>MINIMUM TILE SIZE</p>
-    <p>TILE WIDTH: {tileHeight} GLICPIXXXVER002</p>
-    <p>TILE HEIGHT: {tileHeight} GLICPIXXXVER002</p>
-    <p></p>
-    <p></p>
-  </div>
-</div> */}
 
-      <div className="flex justify-center">
+      <div className="">
         {images.length > 0 ? (
-          <div className="border-black border-8">
-            <ReactP5Wrapper
-              sketch={sketch}
-              filenames={images}
-              minRes={minRes}
-              tileWidth={tileWidth}
-              tileHeight={tileHeight}
-              patternType={patternType}
-              caRule={caRule}
-              hueType={hueType}
-              zoomChance={zoomChance}
-              maxZoom={maxZoom}
-              zoomType={zoomType}
-            />
+          <div className="overflow-auto">
+                <ReactP5Wrapper
+                  sketch={sketch}
+                  filenames={images}
+                  minRes={minRes}
+                  tileWidth={tileWidth}
+                  tileHeight={tileHeight}
+                  patternType={patternType}
+                  caRule={caRule}
+                  hueType={hueType}
+                  zoomChance={zoomChance}
+                  maxZoom={maxZoom}
+                  zoomType={zoomType}
+                />
           </div>
         ) : (
           <></>

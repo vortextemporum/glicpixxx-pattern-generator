@@ -157,7 +157,7 @@ export default function sketch(p5) {
 
   p5.updateWithProps = (props) => {
     console.log("ALL PROPS", props);
-    if (props.filenames !== filenames) {
+    if (props.filenames) {
       console.log("FILENAMES PROP", props.filenames);
       filenames = props.filenames;
       p5.preload();
@@ -168,30 +168,30 @@ export default function sketch(p5) {
     //   p5.resizeCanvas(ww(), hh());
 
     // }
-    if (props.tileWidth !== tilewidth) {
+    if (props.tileWidth) {
       tilewidth = parseInt(props.tileWidth);
       p5.resizeCanvas(ww(), hh());
     }
-    if (props.hueType !== hueType) {
+    if (props.hueType) {
       hueType = props.hueType;
     }
-    if (props.tileHeight !== tileheight) {
+    if (props.tileHeight) {
       tileheight = parseInt(props.tileHeight);
       p5.resizeCanvas(ww(), hh());
     }
-    if (props.patternType !== patternType) {
+    if (props.patternType) {
       patternType = props.patternType;
     }
-    if (props.caRule !== caRule) {
+    if (props.caRule) {
       caRule = props.caRule;
     }
-    if (props.zoomChance !== zoomChance) {
+    if (props.zoomChance) {
       zoomChance = props.zoomChance;
     }
-    if (props.maxZoom !== maxZoom) {
+    if (props.maxZoom) {
       maxZoom = props.maxZoom;
     }
-    if (props.zoomType !== zoomType) {
+    if (props.zoomType) {
       zoomType = props.zoomType;
     }
     // p5.redraw();
@@ -205,7 +205,7 @@ export default function sketch(p5) {
     for (im in filenames) {
       images.push(p5.loadImage(filenames[im]));
     }
-    // console.log(images);
+    console.log(images);
   };
 
   p5.setup = () => {
@@ -342,7 +342,7 @@ export default function sketch(p5) {
 
           imageList.push(nextNumber);
         }
-        // console.log(imageList);
+        console.log(imageList);
         break;
       case "single":
         let randImg = p5.floor(p5.random() * images.length);
@@ -354,10 +354,6 @@ export default function sketch(p5) {
     }
 
     return imageList;
-  }
-
-  function rotationList() {
-
   }
 
   function generate() {
@@ -398,8 +394,7 @@ export default function sketch(p5) {
         p5.push();
 
         let imageRotation = Math.floor(Math.random() * 4) * 90;
-        // console.log(imageRotation);
-        // p5.rotate(imageRotation);
+        console.log(imageRotation);
 
         // p5.pop()
         // p5.rotate(imageRotation * -1);
@@ -445,7 +440,7 @@ export default function sketch(p5) {
           // p5.image(images[im], x, y, minreso, minreso);
 
           let f = Math.floor(Math.random() * 4);
-          // console.log(f);
+          console.log(f);
           if (f > 0) {
             p5.push();
             switch (f) {
@@ -463,43 +458,36 @@ export default function sketch(p5) {
               // default:
               //   "lol";
             }
-            // if (Math.random() > 0.8) {
-            //   let m = [2, 3, 4, 5, 6,7,8,9];
+            if (Math.random() > 0.8) {
+              let m = [2, 3, 4, 5, 6,7,8,9];
 
-            //   let tes = m[Math.floor(Math.random() * m.length)];
-            //   p5.image(
-            //     images[im],
-            //     0 - minreso * tes,
-            //     0,
-            //     minreso * tes,
-            //     minreso * tes
-            //   );
-            // } else {
-            //   p5.image(images[im], 0, 0, minreso, minreso);
-            // }
-            p5.image(images[im], 0, 0, minreso, minreso);
+              let tes = m[Math.floor(Math.random() * m.length)];
+              p5.image(
+                images[im],
+                0 - minreso * tes,
+                0,
+                minreso * tes,
+                minreso * tes
+              );
+            } else {
+              p5.image(images[im], 0, 0, minreso, minreso);
+            }
             p5.pop();
           } else {
-            // p5.push();
+            if (Math.random() > 0.8) {
+              let m = [2, 3, 4, 5, 6];
 
-            // if (Math.random() > 0.8) {
-            //   let m = [2, 3, 4, 5, 6];
-
-            //   let tes = m[Math.floor(Math.random() * m.length)];
-            //   p5.image(
-            //     images[im],
-            //     0 - minreso * tes,
-            //     0,
-            //     minreso * tes,
-            //     minreso * tes
-            //   );
-            // } else {
-            //   p5.image(images[im], 0, 0, minreso, minreso);
-            // }
-
-            p5.image(images[im], 0, 0, minreso, minreso);
-            // p5.pop();
-
+              let tes = m[Math.floor(Math.random() * m.length)];
+              p5.image(
+                images[im],
+                0 - minreso * tes,
+                0,
+                minreso * tes,
+                minreso * tes
+              );
+            } else {
+              p5.image(images[im], 0, 0, minreso, minreso);
+            }
           }
         }
         p5.pop();
