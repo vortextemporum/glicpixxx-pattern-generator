@@ -16,6 +16,10 @@ export default function sketch(p5) {
   var maxZoom = 1; // 1-4
   var zoomChance = 0;
   var zoomType = "fixed";
+  
+  var biggyChance = 0;
+  var biggyMin = 1;
+  var biggyMax = 2;
 
   var patternType = "rand";
   var caRule = 0;
@@ -194,6 +198,15 @@ export default function sketch(p5) {
     if (props.zoomType !== zoomType) {
       zoomType = props.zoomType;
     }
+    if (props.biggyChance !== biggyChance) {
+      biggyChance = props.biggyChance;
+    }
+    if (props.biggyMin !== biggyMin) {
+      biggyMin = props.biggyMin;
+    }
+    if (props.biggyMax !== biggyMax) {
+      biggyMax = props.biggyMax;
+    }
     // p5.redraw();
   };
 
@@ -234,6 +247,16 @@ export default function sketch(p5) {
       // generateAutomata();
     }
   };
+
+  function generateRotationList(patternType) {
+    let rotateList = [];
+    let totalTiles = tilewidth * tileheight;
+
+    switch (patternType) {
+      case "fixed":
+        
+    }
+  }
 
   function generateImageList(patternType) {
     let imageList = [];
@@ -356,9 +379,7 @@ export default function sketch(p5) {
     return imageList;
   }
 
-  function rotationList() {
-
-  }
+  
 
   function generate() {
     let w = ww();
@@ -389,17 +410,42 @@ export default function sketch(p5) {
         // if (i % 2 == 0) {
         //   p5.scale(-1, 1);
         // }
-
+// 
         p5.angleMode(p5.DEGREES);
 
-        // p5.translate(xPosition, yPosition);
+        // // p5.translate(xPosition, yPosition);
         p5.imageMode(p5.CENTER);
+        p5.push(); // 1
         // p5.angleMode(p5.DEGREES);
-        p5.push();
 
         let imageRotation = Math.floor(Math.random() * 4) * 90;
-        // console.log(imageRotation);
-        // p5.rotate(imageRotation);
+   
+        
+        p5.rotate(imageRotation);
+
+        let f = Math.floor(Math.random() * 4);
+          // let f = 0
+          // console.log(f);
+         
+        //     // p5.push();
+        switch (f) {
+          case 1:
+            p5.scale(-1, 1);
+            break;
+
+          case 2:
+            p5.scale(1, -1);
+            break;
+          case 3:
+            p5.scale(-1, -1);
+            break;
+
+          // default:
+          //   "lol";
+        }
+
+
+
 
         // p5.pop()
         // p5.rotate(imageRotation * -1);
@@ -413,6 +459,8 @@ export default function sketch(p5) {
             let z = p5.map(Math.random(), 0, 1, 1, maxZoom);
             p5.image(images[im], 0, 0, minreso * z, minreso * z);
           } else if (zoomType === "spreadxy") {
+            // p5.push()
+
             p5.image(
               images[im],
               0,
@@ -440,29 +488,74 @@ export default function sketch(p5) {
               sHeight
             );
           }
+          else if (zoomType === "best2") {
+            let z = p5.map(Math.random(), 0, 1, 1, maxZoom);
+            // let dWidth = minreso / p5.map(Math.random(), 0, 1, 1, maxZoom);
+            let dWidth = minreso / p5.map(Math.random(), 0, 1, 1, maxZoom);
+            // let dHeight = minreso / p5.map(Math.random(), 0, 1, 1, maxZoom);
+            let dHeight = minreso / p5.map(Math.random(), 0, 1, 1, maxZoom);
+            let sx = p5.map(Math.random(), 0, 1, 0, minreso - minreso / z);
+            let sy = p5.map(Math.random(), 0, 1, 0, minreso - minreso / z);
+            let sWidth = minreso / z;
+            let sHeight = minreso / z;
+            p5.image(
+              images[im],
+              0,
+              0,
+              dWidth,
+              dHeight,
+              sx,
+              sy,
+              sWidth,
+              sHeight
+            );
+          }
+          else if (zoomType === "best3") {
+            // let z = p5.map(Math.random(), 0, 1, 1, maxZoom);
+            // let dWidth = minreso / p5.map(Math.random(), 0, 1, 1, maxZoom);
+            let dWidth = minreso * p5.map(Math.random(), 0, 1, 1, maxZoom);
+            // let dHeight = minreso / p5.map(Math.random(), 0, 1, 1, maxZoom);
+            let dHeight = minreso * p5.map(Math.random(), 0, 1, 1, maxZoom);
+            let sx = p5.map(Math.random(), 0, 1, 0, minreso - minreso / p5.map(Math.random(), 0, 1, 1, maxZoom));
+            let sy = p5.map(Math.random(), 0, 1, 0, minreso - minreso / p5.map(Math.random(), 0, 1, 1, maxZoom));
+            let sWidth = minreso /  p5.map(Math.random(), 0, 1, 1, maxZoom);
+            let sHeight = minreso /  p5.map(Math.random(), 0, 1, 1, maxZoom);
+            p5.image(
+              images[im],
+              0,
+              0,
+              dWidth,
+              dHeight,
+              sx,
+              sy,
+              sWidth,
+              sHeight
+            );
+          }
         } else {
-          p5.rotate(imageRotation);
+          // p5.rotate(imageRotation);
           // p5.image(images[im], x, y, minreso, minreso);
 
-          let f = Math.floor(Math.random() * 4);
+          // let f = Math.floor(Math.random() * 4);
+          // let f = 0
           // console.log(f);
-          if (f > 0) {
-            p5.push();
-            switch (f) {
-              case 1:
-                p5.scale(-1, 1);
-                break;
+          // if (f > 0) {
+          //   p5.push();
+          //   switch (f) {
+          //     case 1:
+          //       p5.scale(-1, 1);
+          //       break;
 
-              case 2:
-                p5.scale(1, -1);
-                break;
-              case 3:
-                p5.scale(-1, -1);
-                break;
+          //     case 2:
+          //       p5.scale(1, -1);
+          //       break;
+          //     case 3:
+          //       p5.scale(-1, -1);
+          //       break;
 
-              // default:
-              //   "lol";
-            }
+          //     // default:
+          //     //   "lol";
+          //   }
             // if (Math.random() > 0.8) {
             //   let m = [2, 3, 4, 5, 6,7,8,9];
 
@@ -477,9 +570,9 @@ export default function sketch(p5) {
             // } else {
             //   p5.image(images[im], 0, 0, minreso, minreso);
             // }
-            p5.image(images[im], 0, 0, minreso, minreso);
-            p5.pop();
-          } else {
+            // p5.image(images[im], 0, 0, minreso, minreso);
+            // p5.pop();
+          // } else {
             // p5.push();
 
             // if (Math.random() > 0.8) {
@@ -500,9 +593,32 @@ export default function sketch(p5) {
             p5.image(images[im], 0, 0, minreso, minreso);
             // p5.pop();
 
-          }
+          // }
         }
-        p5.pop();
+        // p5.pop();
+        // console.log('bigi',biggyChance)
+        let isBig = p5.map(Math.random(), 0, 1, 0, 100) <= biggyChance;
+        if (isBig) {
+              // let m = [2, 3, 4, 5, 6,7,8,9];
+              p5.push()
+              // p5.rotate(-imageRotation);
+
+              let tes = Math.floor(Math.random() * biggyMax) + 1;
+              // let tes = Math.floor(p5.map(Math.random(), 0, 1, biggyMin, biggyMax + 1));
+              // console.log(tes)
+              p5.translate(minreso, minreso);
+              p5.image(
+                images[im],
+                0 - minreso * tes,
+                0 - minreso * tes,
+                minreso * tes,
+                minreso * tes
+              );
+              
+
+              p5.pop()
+            } 
+        p5.pop()
         p5.translate(minreso, 0);
         i++;
       }

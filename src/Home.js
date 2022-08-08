@@ -1,10 +1,5 @@
-// import Head from 'next/head'
 import { useEffect, useState } from "react";
 import { saveAs } from "file-saver";
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-
-// import { useControls } from 'leva'
-
 import { apiUrl, BATCHER_ADDRESS, BATCHER_ABI } from "./config";
 import Web3 from "web3";
 
@@ -13,14 +8,10 @@ import "react-image-picker/dist/index.css";
 
 import { ReactP5Wrapper } from "react-p5-wrapper";
 import sketch from "./sketch.js";
-// import { useTweaks } from "use-tweaks";
 
 // BACKGROUND SKETCH
 
 export default function Home() {
-  // const speed  = useTweaks({ });
-  // const { width, height, zoomchance } = useControls({ width: 0, aNumber: 0 })
-
   const [signedIn, setSignedIn] = useState(false);
 
   const [walletAddress, setWalletAddress] = useState(
@@ -36,11 +27,17 @@ export default function Home() {
 
   const [minRes, setMinRes] = useState(32);
   const [maxZoom, setmaxZoom] = useState(1);
+
+  const [biggyChance, setBiggyChance] = useState(0);
+  const [biggyMin, setBiggyMin] = useState(0);
+  const [biggyMax, setBiggyMax] = useState(0);
+
   const [zoomChance, setzoomChance] = useState(0);
   const [tileWidth, setTileWidth] = useState(32);
   const [tileHeight, setTileHeight] = useState(32);
 
   const [hueType, setHueType] = useState("huenone");
+  const [hueStep, setHueStep] = useState(1);
   const [patternType, setPatternType] = useState("single");
   const [zoomType, setZoomType] = useState("fixed");
   const [caRule, setCaRule] = useState(1);
@@ -78,6 +75,7 @@ export default function Home() {
   };
 
   const onPickImages = (e) => {
+    console.log("picked",e)
     // console.log(e.map((item) => item["src"]))
     setImages(e.map((item) => item["src"]));
     setSelectedIds(e.map((item) => item["value"]));
@@ -125,25 +123,36 @@ export default function Home() {
 
   const getGlicpix = async () => {
     const web3infura = new Web3(new Web3.providers.HttpProvider(apiUrl));
-    console.log(web3infura);
+    // console.log(web3infura);
     const batchercontract = new web3infura.eth.Contract(
       BATCHER_ABI,
       BATCHER_ADDRESS
     );
-    console.log(batchercontract);
+    // console.log(batchercontract);
     // const walletAddress2 = "0xe49381184a49cd2a48e4b09a979524e672fdd10e"
     const glicpixxxaddress = "0x1c60841b70821dca733c9b1a26dbe1a33338bd43";
-
-    const tokensOfOwner = await batchercontract.methods
+    const bganpunksv2address = "0x31385d3520bced94f77aae104b406994d8f2168c"
+    const berketh = "0xc5E08104c19DAfd00Fe40737490Da9552Db5bfE5";
+    
+    let tokensOfOwner = await batchercontract.methods
       .getIds(glicpixxxaddress, walletAddress)
       .call();
-    console.log(tokensOfOwner);
+    // let bastardsOfOwner = await batchercontract.methods
+    //   .getIds(bganpunksv2address, berketh)
+    //   .call();
+    // console.log("bastards",bastardsOfOwner)
+
+    // console.log(tokensOfOwner);
+
     if (tokensOfOwner.length == 0) {
       alert(`NO GLICPIX IN WALLET ${walletAddress}`);
     } else {
-      // const tokensOfOwner = await batchercontract.methods.getIds(glicpixxxaddress, walletAddress2).call();
-      const tx1text = tokensOfOwner.join(",");
-      console.log(tx1text);
+      let sorted = tokensOfOwner.slice().sort(function (a, b) {
+        return Number(a) - Number(b);
+      }); // SORTS BY ID
+      // console.log(sorted)
+      const tx1text = sorted.join(",");
+      // console.log(tx1text);
 
       const res = await fetch(
         `https://api.glicpixxx.love/ver002/multiple/${tx1text}`,
@@ -152,7 +161,7 @@ export default function Home() {
         }
       ).then((r) => r.json());
       // const result = await res.json()
-      // console.log(res)
+      console.log(res);
       setWalletGLICPIX(res);
       getFiles(res);
     }
@@ -214,12 +223,28 @@ export default function Home() {
         }
       }
     });
+    images.push("/calms2/00001.png","/calms2/00002.png","/calms2/00003.png","/calms2/00004.png","/calms2/00005.png","/calms2/00008.png","/calms2/00009.png","/calms2/00010.png","/calms2/00011.png")
+    imagesNames.push({ tokenId: "bgan1", fileName: "/calms2/00001.png" },{ tokenId: "bgan2", fileName: "/calms2/00002.png"},{ tokenId: "bgan3", fileName: "/calms2/00003.png"},{ tokenId: "bgan4", fileName: "/calms2/00004.png" },{ tokenId: "bgan5", fileName: "/calms2/00005.png" },{ tokenId: "bgan8", fileName: "/calms2/00008.png" },{ tokenId: "bgan9", fileName: "/calms2/00009.png" },{ tokenId: "bgan10", fileName: "/calms2/00010.png" },{ tokenId: "bgan11", fileName: "/calms2/00011.png" });
 
     // console.log(images)
     setWalletImages(images);
     console.log("imagesNames", imagesNames);
     setImagesNames(imagesNames);
   };
+
+  // const sortShit = (e) => {
+  //   if (e === "id-ascending") {
+
+  //   } else if (e === "id-descending") {
+
+  //   } else if (e === "color") {
+
+  //   }
+
+  // }
+
+
+
   useEffect(async () => {
     // getGlicpix();
   }, []);
@@ -328,9 +353,9 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="bg-black text-white">
-          <p className="font-bold text-2xl text-center py-2 px-6">
-            CHOOSE GLICPIXXX:
+        <div className="bg-black text-white space-y-2">
+          <p className="font-bold text-2xl text-center py-2 px-6 ">
+            MANUALLY CHOOSE GLICPIXXX:
           </p>
 
           <div className="flex justify-center space-x-4">
@@ -354,6 +379,21 @@ export default function Home() {
               />
             </p>
           </div>
+          {/* <div className="flex justify-center space-x-4">
+            <p className="font-bold">SORT BY:</p>
+
+            <select
+              className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
+              onChange={(e) => setZoomType(e.target.value)}
+            >
+              <option name="zoomType" value="fixed">
+                GLICPIXXX ID
+              </option>
+              <option name="zoomType" value="spread">
+                COLOR
+              </option>
+            </select>
+          </div> */}
         </div>
 
         <div className="bg-black py-4 flex justify-center">
@@ -367,9 +407,28 @@ export default function Home() {
           />
         </div>
         <div className="bg-pink-300 py-6 px-6">
-          {/* <p className="text-xl font-bold p-2">
-            AMOUNT OF IMAGES SELECTED: {images.length}
-          </p> */}
+        {/*   <div className="flex items-center text-sm my-1 space-x-4">
+          <p className=" font-bold">GO YOLO RANDOM:</p>
+          <input
+            className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
+            onChange={(e) => setzoomChance(e.target.value)}
+            type="number"
+            min={0}
+            max={100}
+            step={10}
+            value={zoomChance}
+          />
+          <p>
+            <input
+              type="range"
+              name="size"
+              min="0"
+              max="100"
+              defaultValue="0"
+              onChange={(e) => setzoomChance(e.target.value)}
+            />
+          </p>
+        </div> */}
           <p className="text-xl font-bold p-2">
             SELECTED GLICPIXXX:
             {/* SELECTED IDS: {selectedIds.join(", ")} */}
@@ -389,36 +448,16 @@ export default function Home() {
             })}
           </div>
 
-          {images.map((item, i) => {
+          {/* {images.map((item, i) => {
             <img key={i} src={item} />;
-          })}
+          })} */}
         </div>
 
         {/* <button className="bg-white  p-4 my-8 text-4xl text-black border-4 border-white hover:border-black" onClick={() => { } }> Deselect all images </button> */}
       </main>
 
       <div className="flex flex-col border-2  p-4 bg-yellow-300">
-        {/* <div className="flex items-center">
-          <p className="text-lg font-bold p-8">MIN TILE RESOLUTION:</p>
 
-          <select
-            className="block  bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight  text-lg font-bold text-black"
-            onChange={(e) => setMinRes(e.target.value)}
-          >
-            <option name="resmin" value="32">
-              32
-            </option>
-            <option name="resmin" value="64">
-              64
-            </option>
-            <option name="resmin" value="128">
-              128
-            </option>
-            <option name="resmin" value="256">
-              256
-            </option>
-          </select>
-        </div> */}
         <p className="font-bold text-center mb-2">PARAMETERS</p>
 
         <div className="flex items-center text-sm my-1 space-x-4">
@@ -428,14 +467,14 @@ export default function Home() {
             onChange={(e) => setTileWidth(e.target.value)}
             type="number"
             min={1}
-            max={128}
+            max={256}
             value={tileWidth}
           />
           <p>
             <input
               type="range"
               name="size"
-              min="32"
+              min="1"
               max="256"
               defaultValue="32"
               onChange={(e) => setTileWidth(e.target.value)}
@@ -450,14 +489,14 @@ export default function Home() {
             onChange={(e) => setTileHeight(e.target.value)}
             type="number"
             min={1}
-            max={128}
+            max={256}
             value={tileHeight}
           />
           <p>
             <input
               type="range"
               name="size"
-              min="32"
+              min="1"
               max="256"
               defaultValue="32"
               onChange={(e) => setTileHeight(e.target.value)}
@@ -528,7 +567,78 @@ export default function Home() {
             <option name="zoomType" value="best">
               BEST
             </option>
+            <option name="zoomType" value="best2">
+              BEST2
+            </option>
+            <option name="zoomType" value="best3">
+              BEST3
+            </option>
           </select>
+        </div>
+
+        <div className="flex items-center text-sm my-1 space-x-4">
+          <p className=" font-bold">BIGGY CHANCE:</p>
+          <input
+            className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
+            onChange={(e) => setBiggyChance(e.target.value)}
+            type="number"
+            min={0}
+            max={100}
+            step={1}
+            value={biggyChance}
+          />
+          <p>
+            <input
+              type="range"
+              name="size"
+              min="0"
+              max="100"
+              defaultValue="0"
+              onChange={(e) => setBiggyChance(e.target.value)}
+            />
+          </p>
+        </div>
+        {/* <div className="flex items-center text-sm my-1 space-x-4">
+          <p className="font-bold">BIGGY MIN:</p>
+          <input
+            className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
+            onChange={(e) => setBiggyMin(e.target.value)}
+            type="number"
+            min={1}
+            max={16}
+            value={biggyMin}
+          />
+          <p>
+            <input
+              type="range"
+              name="size"
+              min="1"
+              max="16"
+              defaultValue="1"
+              onChange={(e) => setBiggyMin(e.target.value)}
+            />
+          </p>
+        </div> */}
+        <div className="flex items-center text-sm my-1 space-x-4">
+          <p className="font-bold">BIGGY MAX:</p>
+          <input
+            className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
+            onChange={(e) => setBiggyMax(e.target.value)}
+            type="number"
+            min={1}
+            max={16}
+            value={biggyMax}
+          />
+          <p>
+            <input
+              type="range"
+              name="size"
+              min="1"
+              max="16"
+              defaultValue="1"
+              onChange={(e) => setBiggyMax(e.target.value)}
+            />
+          </p>
         </div>
 
         <div className="flex items-center text-sm my-1">
@@ -621,12 +731,22 @@ export default function Home() {
               <p className="font-bold mr-2">HUE STEP</p>
               <input
                 className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
-                onChange={(e) => setCaRule(e.target.value)}
+                onChange={(e) => setHueStep(e.target.value)}
                 type="number"
                 min={1}
                 max={360}
-                value={caRule}
+                value={hueStep}
               />
+              <p>
+                <input
+                  type="range"
+                  name="size"
+                  min="1"
+                  max="360"
+                  defaultValue="1"
+                  onChange={(e) => setHueStep(e.target.value)}
+                />
+              </p>
             </div>
           ) : (
             <></>
@@ -652,19 +772,23 @@ export default function Home() {
       <div className="">
         {images.length > 0 ? (
           <div className="overflow-auto">
-                <ReactP5Wrapper
-                  sketch={sketch}
-                  filenames={images}
-                  minRes={minRes}
-                  tileWidth={tileWidth}
-                  tileHeight={tileHeight}
-                  patternType={patternType}
-                  caRule={caRule}
-                  hueType={hueType}
-                  zoomChance={zoomChance}
-                  maxZoom={maxZoom}
-                  zoomType={zoomType}
-                />
+            <ReactP5Wrapper
+              sketch={sketch}
+              filenames={images}
+              minRes={minRes}
+              tileWidth={tileWidth}
+              tileHeight={tileHeight}
+              patternType={patternType}
+              caRule={caRule}
+              hueType={hueType}
+              zoomChance={zoomChance}
+              maxZoom={maxZoom}
+              zoomType={zoomType}
+              hueStep={hueStep}
+              biggyChance={biggyChance}
+              biggyMin={biggyMin}
+              biggyMax={biggyMax}
+            />
           </div>
         ) : (
           <></>
