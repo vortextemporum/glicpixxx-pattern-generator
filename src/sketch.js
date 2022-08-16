@@ -1,3 +1,4 @@
+// const glitch = require("p5.glitch")
 const Serialism = require("total-serialism");
 const Algo = Serialism.Algorithmic;
 const Rand = Serialism.Stochastic;
@@ -7,6 +8,9 @@ export default function sketch(p5) {
   var images = [];
   let filenames = [];
   let patternList = [];
+  let glixbganweight = 0.5;
+
+  let camel;
 
   var minreso = 32;
   var tilewidth = 32;
@@ -16,13 +20,23 @@ export default function sketch(p5) {
   var maxZoom = 1; // 1-4
   var zoomChance = 0;
   var zoomType = "fixed";
-  
+
   var biggyChance = 0;
   var biggyMin = 1;
   var biggyMax = 2;
 
-  var patternType = "rand";
+  var patternType = "single";
   var caRule = 0;
+
+  let direction = "vertical";
+  let threshold = 100;
+  let threshold2 = 100;
+  let pixelDistance = 20;
+  let pixelDistance2 = 20;
+
+  let img;
+  let changes;
+  let glic;
 
   let ww = () => {
     return minreso * tilewidth;
@@ -30,6 +44,174 @@ export default function sketch(p5) {
   let hh = () => {
     return minreso * tileheight;
   };
+
+  function pixelate(newDensity = 1) {
+    newDensity = p5.constrain(newDensity, 0.0, p5.displayDensity());
+    p5.pixelDensity(newDensity);
+    document.body.style.imageRendering = "pixelated";
+    p5.noSmooth();
+    // this.debugMsg('p5.glitch - pixelate density: ' + newDensity);
+  }
+
+  function generatePixelSort(direction, threshold, pixelDistance) {
+    changes = detectPixelChanges(
+      img,
+      threshold,
+      pixelDistance,
+      direction,
+      false
+    );
+    for (let i = 0; i < changes.length; i++) {
+      if (i < changes.length - 1) {
+        pixelSortTo(
+          img,
+          changes[i].x,
+          changes[i].y,
+          changes[i + 1].x,
+          changes[i + 1].y,
+          direction
+        );
+      } else {
+        pixelSort(img, changes[i].x, changes[i].y, direction);
+      }
+    }
+    img.updatePixels();
+  }
+
+  function detectPixelChanges(
+    img,
+    threshold,
+    distance = 1,
+    direction = "horizontal",
+    onlyFirst = true
+  ) {
+    let results = [];
+    direction =
+      direction == "horizontal" ? p5.createVector(1, 0) : p5.createVector(0, 1);
+    let pos = p5.createVector();
+
+    for (let j = 0, lim = direction.x ? img.height : img.width; j < lim; j++) {
+      for (
+        let i = 0, lim = direction.x ? img.width : img.height;
+        i < lim;
+        i++
+      ) {
+        let colBefore = getPixelValue(
+          img,
+          direction.x ? i - distance : j,
+          direction.x ? j : i - distance
+        );
+        if (colBefore) {
+          let col = getPixelValue(
+            img,
+            direction.x ? i : j,
+            direction.x ? j : i
+          );
+          let d = p5.dist(
+            colBefore[0],
+            colBefore[1],
+            colBefore[2],
+            col[0],
+            col[1],
+            col[2]
+          );
+          if (d > threshold) {
+            //point(direction.x ? i : j, direction.x ? j : i);
+            results.push(
+              p5.createVector(direction.x ? i : j, direction.x ? j : i)
+            );
+            if (onlyFirst) break;
+          }
+        }
+      }
+    }
+    return results;
+  }
+
+  function getPixelValue(img, x, y) {
+    if (x < 0 || x > img.width - 1 || y < 0 || y > img.height - 1) return null;
+    if (!img.pixels.length) img.loadPixels();
+    let i = 16 * (x + y * img.width);
+    let r = img.pixels[i];
+    let g = img.pixels[i + 1];
+    let b = img.pixels[i + 2];
+    let a = img.pixels[i + 3];
+    return [r, g, b, a];
+  }
+
+  function setPixelValue(img, x, y, colR, colG, colB, colA = 255) {
+    if (x < 0 || x > img.width - 1 || y < 0 || y > img.height - 1) return null;
+    if (!img.pixels.length) img.loadPixels();
+    let i = 16 * (x + y * img.width);
+    img.pixels[i] = colR;
+    img.pixels[i + 1] = colG;
+    img.pixels[i + 2] = colB;
+    img.pixels[i + 3] = colA;
+  }
+
+  function pixelSort(img, x, y, direction) {
+    direction =
+      direction == "horizontal" ? p5.createVector(1, 0) : p5.createVector(0, 1);
+    let pix = [];
+    let start = direction.x ? x : y;
+    let end = direction.x ? img.width : img.height;
+    for (let i = start; i < end; i++) {
+      let val = getPixelValue(img, direction.x ? i : x, direction.x ? y : i);
+      pix.push(val);
+    }
+
+    pix.sort(sortFunction);
+    let i = 0;
+    for (let p of pix) {
+      setPixelValue(
+        img,
+        x + direction.x * i,
+        y + direction.y * i,
+        p[0],
+        p[1],
+        p[2]
+      );
+      i++;
+    }
+  }
+
+  function pixelSortTo(img, x1, y1, x2, y2, direction = "vertical") {
+    direction =
+      direction == "horizontal" ? p5.createVector(1, 0) : p5.createVector(0, 1);
+    let pix = [];
+    let start = direction.x ? x1 : y1;
+    let end = direction.x ? img.width : img.height;
+    for (let i = start; i < end; i++) {
+      let x = direction.x ? i : x1;
+      let y = direction.x ? y1 : i;
+      if (x == x2 && y == y2) break;
+      let val = getPixelValue(img, x, y);
+      pix.push(val);
+    }
+
+    pix.sort(sortFunction);
+    let i = 0;
+    for (let p of pix) {
+      setPixelValue(
+        img,
+        x1 + direction.x * i,
+        y1 + direction.y * i,
+        p[0],
+        p[1],
+        p[2]
+      );
+      i++;
+    }
+  }
+
+  function sortFunction(a, b) {
+    return (
+      p5.brightness(p5.color(b[0], b[1], b[2])) -
+      p5.brightness(p5.color(a[0], a[1], a[2]))
+    );
+    // return b[0] * b[1] * b[2] - a[0] * a[1] * a[2];
+    return -(b[0] - a[0] + b[1] - a[1] + b[2] - a[2]);
+  }
 
   /// HUE SHIFT START
 
@@ -160,11 +342,12 @@ export default function sketch(p5) {
   /// HUE SHIFT END
 
   p5.updateWithProps = (props) => {
-    console.log("ALL PROPS", props);
+    // console.log("ALL PROPS", props);
     if (props.filenames !== filenames) {
-      console.log("FILENAMES PROP", props.filenames);
+      // console.log("FILENAMES PROP", props.filenames);
       filenames = props.filenames;
       p5.preload();
+      // return
     }
     // if (props.minRes) {
     //   // console.log("FILENAMES PROP",props.minRes)
@@ -172,40 +355,56 @@ export default function sketch(p5) {
     //   p5.resizeCanvas(ww(), hh());
 
     // }
+    if (props.glixbganweight !== glixbganweight) {
+      glixbganweight = props.glixbganweight;
+      return;
+    }
     if (props.tileWidth !== tilewidth) {
       tilewidth = parseInt(props.tileWidth);
       p5.resizeCanvas(ww(), hh());
+      return;
     }
     if (props.hueType !== hueType) {
       hueType = props.hueType;
+      return;
     }
     if (props.tileHeight !== tileheight) {
       tileheight = parseInt(props.tileHeight);
       p5.resizeCanvas(ww(), hh());
+      // return
     }
     if (props.patternType !== patternType) {
       patternType = props.patternType;
+      // return
     }
     if (props.caRule !== caRule) {
       caRule = props.caRule;
+      // return
     }
     if (props.zoomChance !== zoomChance) {
       zoomChance = props.zoomChance;
+      // return
     }
     if (props.maxZoom !== maxZoom) {
       maxZoom = props.maxZoom;
+      // console.log(maxZoom)
+      // return
     }
     if (props.zoomType !== zoomType) {
       zoomType = props.zoomType;
+      // return
     }
     if (props.biggyChance !== biggyChance) {
       biggyChance = props.biggyChance;
+      // return
     }
     if (props.biggyMin !== biggyMin) {
       biggyMin = props.biggyMin;
+      // return
     }
     if (props.biggyMax !== biggyMax) {
       biggyMax = props.biggyMax;
+      // return
     }
     // p5.redraw();
   };
@@ -218,6 +417,7 @@ export default function sketch(p5) {
     for (im in filenames) {
       images.push(p5.loadImage(filenames[im]));
     }
+    // camel = p5.loadImage('https://berk.mypinata.cloud/ipfs/QmWKxFR8PJUL1BijXs2UyNQuNAVPMFwx5Lefr3PtmS6oK8');
     // console.log(images);
   };
 
@@ -226,15 +426,41 @@ export default function sketch(p5) {
     canva.id("bgbgbg");
     var button = p5.select("#generatebutton");
     var button2 = p5.select("#saveimage");
+    // var button3 = p5.select("#pixelsort");
+    // var button4 = p5.select("#pixelsort2");
 
-    button.mousePressed(() => p5.redraw());
+    // button.mousePressed(() => { var canva = p5.createCanvas(ww(), hh()); canva.id("bgbgbg"); p5.redraw()});
+    button.mousePressed(() => {
+      p5.redraw();
+    });
     button2.mousePressed(() =>
       p5.saveCanvas(canva, `glicpixpattern_${new Date().toJSON()}`, "png")
     );
+    // button3.mousePressed(() => {
+    //   img.pixels = [];
+    //   // console.log(img.pixels)
+    //   // console.log(img.pixels)
+    //   console.log(img.width, img.height);
+    //   generatePixelSort("vertical", 100, 20);
+    //   p5.image(img, 0, 0);
+    // });
+    // button4.mousePressed(() => {
+    //   img.pixels = [];
+    //   // console.log(img.pixels)
+    //   // console.log(img.pixels)
+    //   console.log(img.width, img.height);
+    //   generatePixelSort("horizontal", 100, 20);
+    //   p5.image(img, 0, 0);
+    // });
     p5.noLoop();
+    // glitch = new Glitch(p5);
+    // console.log(glitch)
   };
 
   p5.draw = () => {
+    img = p5.createGraphics(ww(), hh());
+    img.noSmooth();
+
     if (images.length > 0) {
       p5.noSmooth();
       if (hueType === "hueglic") {
@@ -242,9 +468,20 @@ export default function sketch(p5) {
           p5.hueShift(images[j], Math.floor(Math.random() * 360));
         }
       }
+      // pixelate(0.2)
 
       generate();
-      // generateAutomata();
+      // p5.blendMode(p5.DIFFERENCE)
+
+      // camel.filter(p5.INVERT)
+      // p5.image(camel,0,0,ww(), hh())
+      // img.filter(p5.INVERT)
+      // p5.image(img,0,0)
+      // img.filter(p5.INVERT)
+      // p5.image(camel,0,0)
+      // img.tint(200,30,30);
+      // img.hueShift(20);
+      p5.image(img, 0, 0);
     }
   };
 
@@ -254,13 +491,36 @@ export default function sketch(p5) {
 
     switch (patternType) {
       case "fixed":
-        
     }
   }
 
   function generateImageList(patternType) {
     let imageList = [];
     let totalTiles = tilewidth * tileheight;
+    // console.log("BAK", images);
+    let glixx = filenames
+      .map((item, idx) => {
+        if (item.split("/")[2] === "glicpix") {
+          return idx;
+        } else {
+          return null;
+        }
+      })
+      .filter((item) => item !== null);
+    // console.log("glixx",glixx);
+    let bgans = filenames
+      .map((item, idx) => {
+        if (item.split("/")[2] === "bgan") {
+          return idx;
+        } else {
+          return null;
+        }
+      })
+      .filter((item) => item !== null);
+    console.log("testing", bgans);
+    let splitList = { glix: glixx, bgan: bgans };
+    console.log("SPLIT", splitList);
+    // console.log("bgan",bgans)
     //   console.log("PATTERN TYPE:",patternType)
     switch (patternType) {
       case "ca":
@@ -287,21 +547,52 @@ export default function sketch(p5) {
         break;
       case "rand":
         for (let i = 0; i < totalTiles; i++) {
-          imageList.push(p5.floor(p5.random() * images.length));
+          // console.log(splitList[whichList].length)
+          let imm;
+          if (splitList["glix"].length > 0 && splitList["bgan"].length > 0) {
+            let whichList = p5.random() <= glixbganweight ? "glix" : "bgan";
+            imm =
+              splitList[whichList][
+                p5.floor(p5.random() * splitList[whichList].length)
+              ];
+            imageList.push(imm);
+          } else {
+            imm = p5.floor(p5.random() * images.length);
+            imageList.push(imm);
+          }
         }
         break;
       case "randrow":
         for (var y = 0; y < tileheight; y++) {
-          let rowRand = p5.floor(p5.random() * images.length);
+          let rowRand;
+          if (splitList["glix"].length > 0 && splitList["bgan"].length > 0) {
+            let whichList = p5.random() <= glixbganweight ? "glix" : "bgan";
+            rowRand =
+              splitList[whichList][
+                p5.floor(p5.random() * splitList[whichList].length)
+              ];
+          } else {
+            rowRand = p5.floor(p5.random() * images.length);
+          }
           for (var x = 0; x < tilewidth; x++) {
             imageList.push(rowRand);
           }
         }
+        
         break;
       case "randcol":
         imageList = Array(totalTiles).fill(0);
         for (var x = 0; x < tilewidth; x++) {
-          let colRand = p5.floor(p5.random() * images.length);
+          let colRand;
+          if (splitList["glix"].length > 0 && splitList["bgan"].length > 0) {
+            let whichList = p5.random() <= glixbganweight ? "glix" : "bgan";
+            colRand =
+              splitList[whichList][
+                p5.floor(p5.random() * splitList[whichList].length)
+              ];
+          } else {
+            colRand = p5.floor(p5.random() * images.length);
+          }
           for (var y = 0; y < tileheight; y++) {
             imageList[tilewidth * y + x] = colRand;
           }
@@ -354,6 +645,7 @@ export default function sketch(p5) {
       //   }}
       //   break;
       case "drunk":
+        
         let nextNumber = p5.floor(p5.random() * images.length);
         for (let i = 0; i < totalTiles; i++) {
           nextNumber =
@@ -379,8 +671,6 @@ export default function sketch(p5) {
     return imageList;
   }
 
-  
-
   function generate() {
     let w = ww();
     let h = hh();
@@ -391,12 +681,12 @@ export default function sketch(p5) {
     let i = 0;
     // p5.tint(p5.random() * 255, p5.random() * 255, p5.random() * 255);
     // let huestart = Math.floor(Math.random() * 360)
-    p5.translate(minreso / 2, minreso / 2);
+    img.translate(minreso / 2, minreso / 2);
 
     let huestep = Math.floor(Math.random() * 360);
     for (var y = 0; y < h; y = y + minreso) {
       for (var x = 0; x < w; x = x + minreso) {
-        // p5.imageMode(p5.CENTER)
+        // img.imageMode(p5.CENTER)
 
         // p5.push()
         im = imageList[i];
@@ -410,73 +700,71 @@ export default function sketch(p5) {
         // if (i % 2 == 0) {
         //   p5.scale(-1, 1);
         // }
-// 
-        p5.angleMode(p5.DEGREES);
+        //
+        img.angleMode(p5.DEGREES);
 
         // // p5.translate(xPosition, yPosition);
-        p5.imageMode(p5.CENTER);
-        p5.push(); // 1
+        img.imageMode(p5.CENTER);
+        img.push(); // 1
         // p5.angleMode(p5.DEGREES);
 
+        // let imageRotation = (p5.random() > 0.9) ? Math.floor(Math.random() * 360) : Math.floor(Math.random() * 4) * 90
+
         let imageRotation = Math.floor(Math.random() * 4) * 90;
-   
-        
-        p5.rotate(imageRotation);
+
+        img.rotate(imageRotation);
 
         let f = Math.floor(Math.random() * 4);
-          // let f = 0
-          // console.log(f);
-         
+        // let f = 0
+        // console.log(f);
+
         //     // p5.push();
         switch (f) {
           case 1:
-            p5.scale(-1, 1);
+            img.scale(-1, 1);
             break;
 
           case 2:
-            p5.scale(1, -1);
+            img.scale(1, -1);
             break;
           case 3:
-            p5.scale(-1, -1);
+            img.scale(-1, -1);
             break;
 
           // default:
           //   "lol";
         }
 
+        // img.pop()
+        // img.rotate(imageRotation * -1);
 
-
-
-        // p5.pop()
-        // p5.rotate(imageRotation * -1);
-
-        let isZoom = p5.map(Math.random(), 0, 1, 0, 100) <= zoomChance;
+        let isZoom = img.map(Math.random(), 0, 1, 0, 100) <= zoomChance;
         if (isZoom) {
           if (zoomType === "fixed") {
-            p5.image(images[im], x, y, minreso * maxZoom, minreso * maxZoom);
+            img.image(images[im], x, y, minreso * maxZoom, minreso * maxZoom);
           } else if (zoomType === "spread") {
             // let z = Math.floor(Math.random() * maxZoom) + 1
-            let z = p5.map(Math.random(), 0, 1, 1, maxZoom);
-            p5.image(images[im], 0, 0, minreso * z, minreso * z);
+            let z = img.map(Math.random(), 0, 1, 1, maxZoom);
+            img.image(images[im], 0, 0, minreso * z, minreso * z);
           } else if (zoomType === "spreadxy") {
-            // p5.push()
+            // img.push()
 
-            p5.image(
+            img.image(
               images[im],
               0,
               0,
-              minreso * p5.map(Math.random(), 0, 1, 1, maxZoom),
-              minreso * p5.map(Math.random(), 0, 1, 1, maxZoom)
+              minreso * img.map(Math.random(), 0, 1, 1, maxZoom),
+              minreso * img.map(Math.random(), 0, 1, 1, maxZoom)
             );
           } else if (zoomType === "best") {
-            let z = p5.map(Math.random(), 0, 1, 1, maxZoom);
+            let z = img.map(Math.random(), 0, 1, 1, maxZoom);
             let dWidth = minreso;
             let dHeight = minreso;
-            let sx = p5.map(Math.random(), 0, 1, 0, minreso - minreso / z);
-            let sy = p5.map(Math.random(), 0, 1, 0, minreso - minreso / z);
+            let sx = img.map(Math.random(), 0, 1, 0, minreso - minreso / z);
+            let sy = img.map(Math.random(), 0, 1, 0, minreso - minreso / z);
             let sWidth = minreso / z;
             let sHeight = minreso / z;
-            p5.image(
+            img.image(
               images[im],
               0,
               0,
@@ -487,18 +775,17 @@ export default function sketch(p5) {
               sWidth,
               sHeight
             );
-          }
-          else if (zoomType === "best2") {
-            let z = p5.map(Math.random(), 0, 1, 1, maxZoom);
-            // let dWidth = minreso / p5.map(Math.random(), 0, 1, 1, maxZoom);
-            let dWidth = minreso / p5.map(Math.random(), 0, 1, 1, maxZoom);
-            // let dHeight = minreso / p5.map(Math.random(), 0, 1, 1, maxZoom);
-            let dHeight = minreso / p5.map(Math.random(), 0, 1, 1, maxZoom);
-            let sx = p5.map(Math.random(), 0, 1, 0, minreso - minreso / z);
-            let sy = p5.map(Math.random(), 0, 1, 0, minreso - minreso / z);
+          } else if (zoomType === "best2") {
+            let z = img.map(Math.random(), 0, 1, 1, maxZoom);
+            // let dWidth = minreso / img.map(Math.random(), 0, 1, 1, maxZoom);
+            let dWidth = minreso / img.map(Math.random(), 0, 1, 1, maxZoom);
+            // let dHeight = minreso / img.map(Math.random(), 0, 1, 1, maxZoom);
+            let dHeight = minreso / img.map(Math.random(), 0, 1, 1, maxZoom);
+            let sx = img.map(Math.random(), 0, 1, 0, minreso - minreso / z);
+            let sy = img.map(Math.random(), 0, 1, 0, minreso - minreso / z);
             let sWidth = minreso / z;
             let sHeight = minreso / z;
-            p5.image(
+            img.image(
               images[im],
               0,
               0,
@@ -509,18 +796,29 @@ export default function sketch(p5) {
               sWidth,
               sHeight
             );
-          }
-          else if (zoomType === "best3") {
-            // let z = p5.map(Math.random(), 0, 1, 1, maxZoom);
-            // let dWidth = minreso / p5.map(Math.random(), 0, 1, 1, maxZoom);
-            let dWidth = minreso * p5.map(Math.random(), 0, 1, 1, maxZoom);
-            // let dHeight = minreso / p5.map(Math.random(), 0, 1, 1, maxZoom);
-            let dHeight = minreso * p5.map(Math.random(), 0, 1, 1, maxZoom);
-            let sx = p5.map(Math.random(), 0, 1, 0, minreso - minreso / p5.map(Math.random(), 0, 1, 1, maxZoom));
-            let sy = p5.map(Math.random(), 0, 1, 0, minreso - minreso / p5.map(Math.random(), 0, 1, 1, maxZoom));
-            let sWidth = minreso /  p5.map(Math.random(), 0, 1, 1, maxZoom);
-            let sHeight = minreso /  p5.map(Math.random(), 0, 1, 1, maxZoom);
-            p5.image(
+          } else if (zoomType === "best3") {
+            // let z = img.map(Math.random(), 0, 1, 1, maxZoom);
+            // let dWidth = minreso / img.map(Math.random(), 0, 1, 1, maxZoom);
+            let dWidth = minreso * img.map(Math.random(), 0, 1, 1, maxZoom);
+            // let dHeight = minreso / img.map(Math.random(), 0, 1, 1, maxZoom);
+            let dHeight = minreso * img.map(Math.random(), 0, 1, 1, maxZoom);
+            let sx = img.map(
+              Math.random(),
+              0,
+              1,
+              0,
+              minreso - minreso / img.map(Math.random(), 0, 1, 1, maxZoom)
+            );
+            let sy = img.map(
+              Math.random(),
+              0,
+              1,
+              0,
+              minreso - minreso / img.map(Math.random(), 0, 1, 1, maxZoom)
+            );
+            let sWidth = minreso / img.map(Math.random(), 0, 1, 1, maxZoom);
+            let sHeight = minreso / img.map(Math.random(), 0, 1, 1, maxZoom);
+            img.image(
               images[im],
               0,
               0,
@@ -533,141 +831,39 @@ export default function sketch(p5) {
             );
           }
         } else {
-          // p5.rotate(imageRotation);
-          // p5.image(images[im], x, y, minreso, minreso);
-
-          // let f = Math.floor(Math.random() * 4);
-          // let f = 0
-          // console.log(f);
-          // if (f > 0) {
-          //   p5.push();
-          //   switch (f) {
-          //     case 1:
-          //       p5.scale(-1, 1);
-          //       break;
-
-          //     case 2:
-          //       p5.scale(1, -1);
-          //       break;
-          //     case 3:
-          //       p5.scale(-1, -1);
-          //       break;
-
-          //     // default:
-          //     //   "lol";
-          //   }
-            // if (Math.random() > 0.8) {
-            //   let m = [2, 3, 4, 5, 6,7,8,9];
-
-            //   let tes = m[Math.floor(Math.random() * m.length)];
-            //   p5.image(
-            //     images[im],
-            //     0 - minreso * tes,
-            //     0,
-            //     minreso * tes,
-            //     minreso * tes
-            //   );
-            // } else {
-            //   p5.image(images[im], 0, 0, minreso, minreso);
-            // }
-            // p5.image(images[im], 0, 0, minreso, minreso);
-            // p5.pop();
-          // } else {
-            // p5.push();
-
-            // if (Math.random() > 0.8) {
-            //   let m = [2, 3, 4, 5, 6];
-
-            //   let tes = m[Math.floor(Math.random() * m.length)];
-            //   p5.image(
-            //     images[im],
-            //     0 - minreso * tes,
-            //     0,
-            //     minreso * tes,
-            //     minreso * tes
-            //   );
-            // } else {
-            //   p5.image(images[im], 0, 0, minreso, minreso);
-            // }
-
-            p5.image(images[im], 0, 0, minreso, minreso);
-            // p5.pop();
+          img.image(images[im], 0, 0, minreso, minreso);
+          // img.pop();
 
           // }
         }
-        // p5.pop();
+        // img.pop();
         // console.log('bigi',biggyChance)
-        let isBig = p5.map(Math.random(), 0, 1, 0, 100) <= biggyChance;
+        let isBig = img.map(Math.random(), 0, 1, 0, 100) <= biggyChance;
         if (isBig) {
-              // let m = [2, 3, 4, 5, 6,7,8,9];
-              p5.push()
-              // p5.rotate(-imageRotation);
+          // let m = [2, 3, 4, 5, 6,7,8,9];
+          img.push();
+          // img.rotate(-imageRotation);
 
-              let tes = Math.floor(Math.random() * biggyMax) + 1;
-              // let tes = Math.floor(p5.map(Math.random(), 0, 1, biggyMin, biggyMax + 1));
-              // console.log(tes)
-              p5.translate(minreso, minreso);
-              p5.image(
-                images[im],
-                0 - minreso * tes,
-                0 - minreso * tes,
-                minreso * tes,
-                minreso * tes
-              );
-              
+          let tes = Math.floor(Math.random() * biggyMax) + 1;
+          // let tes = Math.floor(img.map(Math.random(), 0, 1, biggyMin, biggyMax + 1));
+          // console.log(tes)
+          img.translate(minreso, minreso);
+          img.image(
+            images[im],
+            0 - minreso * tes,
+            0 - minreso * tes,
+            minreso * tes,
+            minreso * tes
+          );
 
-              p5.pop()
-            } 
-        p5.pop()
-        p5.translate(minreso, 0);
+          img.pop();
+        }
+        img.pop();
+        img.translate(minreso, 0);
         i++;
       }
 
-      p5.translate(minreso * - tilewidth, minreso);
+      img.translate(minreso * -tilewidth, minreso);
     }
-
-    // let j = 0
-    // for (var y = 0; y < h; y = y + minreso) {
-
-    // for (var x = 0; x < w; x = x + minreso) {
-    // p5.imageMode(p5.CENTER)
-
-    // p5.push()
-    // im =  imageList[Math.floor(Math.random() * imageList.length)]
-
-    // if (Math.random() > 0.8) {
-    // let tes = m[Math.floor(Math.random() * m.length)]
-    // p5.image(images[im], x - (minreso * tes), y, minreso * tes, minreso * tes);
-
-    // }
-    // let isZoom = p5.map(Math.random(),0,1,0,100) <= zoomChance
-    // if (isZoom) {
-    //   if (zoomType === 'fixed') {
-    //     p5.image(images[im], x, y, minreso * maxZoom, minreso * maxZoom);
-    //   } else if (zoomType === 'spread') {
-    //     // let z = Math.floor(Math.random() * maxZoom) + 1
-    //     let z = p5.map(Math.random(),0,1,1,maxZoom)
-    //       p5.image(images[im], x, y, minreso * z, minreso * z);
-    //   } else if (zoomType === 'spreadxy') {
-    //     p5.image(images[im], x, y, minreso * p5.map(Math.random(),0,1,1,maxZoom), minreso * p5.map(Math.random(),0,1,1,maxZoom));
-    //   } else if (zoomType === 'best') {
-    //     let z = p5.map(Math.random(),0,1,1,maxZoom)
-    //     let dWidth = minreso
-    //     let dHeight = minreso
-    //     let sx = p5.map(Math.random(),0,1,0,minreso- (minreso / z))
-    //     let sy = p5.map(Math.random(),0,1,0,minreso- (minreso / z))
-    //     let sWidth = minreso / z
-    //     let sHeight = minreso / z
-    //     p5.image(images[im], x,y,dWidth,dHeight,sx,sy,sWidth,sHeight);
-    //   }
-    // } else {
-    // p5.image(images[im], x, y, minreso, minreso);
-
-    // p5.pop()
-    // }
-    // i++
-    // }
-
-    // }
   }
 }
