@@ -446,6 +446,20 @@ export default function Home() {
     // getGlicpix();
   }, []);
 
+  function getBase64Image(img) {
+    var canvas = document.createElement("canvas");
+    canvas.width = img.width;
+    canvas.height = img.height;
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+    var dataURL = canvas.toDataURL("image/png");
+    return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+  }
+
+  function getallBase64() {
+    images.map((item) => console.log(getBase64Image(document.getElementById(item.split("/")[-1]))))
+  }
+
   return (
     <div className="source-code flex flex-col min-h-screen text-black">
       <main className="w-full">
@@ -814,7 +828,7 @@ export default function Home() {
             return (
               <div className="p-2 border-2 border-black bg-white">
                 <span>{selectedIds[idx]}</span>
-                <img key={idx} src={item} width={"64px"} />
+                <img id={item.split("/")[-1]} key={item.split("/")[-1]} src={item} width={"64px"} />
               </div>
             );
           })}
@@ -1241,6 +1255,14 @@ export default function Home() {
         <p className="font-bold mr-2">ROTATION / MIRROR TYPE: (SOON)</p>
 
         <div className="flex flex-wrap space-x-2 space-y-2 items-center justify-around">
+          <button
+            id=""
+            className="bg-black text-white hover:bg-white hover:text-black p-2 text-xl border-4 border-white hover:border-black"
+            onClick={()=> getallBase64}
+          >
+            {" "}
+            UPDATE PARAMS
+          </button>
           <button
             id=""
             className="bg-black text-white hover:bg-white hover:text-black p-2 text-xl border-4 border-white hover:border-black"
