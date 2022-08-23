@@ -64,26 +64,6 @@ export default function Home() {
   const [zoomType, setZoomType] = useState("best3");
   const [caRule, setCaRule] = useState(1);
 
-  const paraminit = {
-    filenames:[],
-    minRes:32,
-    tileWidth:32,
-    tileHeight:32,
-    patternType:"single",
-    caRule:0,
-    hueType:"huenone",
-    zoomChance:0,
-    maxZoom:4,
-    zoomType:"best3",
-    hueStep:1,
-    biggyChance:0,
-    biggyMax:8,
-    glixbganweight:0.5,
-  }
-
-  const [params, setParams] = useState(paraminit)
-  const [paramsPassed, setParamsPassed] = useState(params)
-
   
 
   const zipImages = async (col) => {
@@ -94,7 +74,7 @@ export default function Home() {
       let files = imagesNamesGlicpix.map((item, i) => item["fileName"]);
       for (let file = 0; file < files.length; file++) {
         // Zip file with the file name.
-        // console.log(files[file]);
+        console.log(files[file]);
         await JSZipUtils.getBinaryContent(files[file], function (err, data) {
           if (err) {
             throw err; // or handle the error
@@ -122,11 +102,11 @@ export default function Home() {
   };
 
   const changeThumbSize = (size) => {
-    // console.log(size);
+    console.log(size);
     const timing = getComputedStyle(document.documentElement).getPropertyValue(
       "--thumb-value"
     );
-    // console.log("timig", timing);
+    console.log("timig", timing);
     // console.log("timig",`${size}px !important`)
     setThumbSize(size);
     document.documentElement.style.setProperty(
@@ -142,7 +122,7 @@ export default function Home() {
   };
 
   const onPickImages = (e, collection) => {
-    // console.log("picked", e);
+    console.log("picked", e);
     // console.log(e.map((item) => item["src"]))
     let imageList = e.map((item) => item["src"]);
     let idList = e.map((item) => item["value"]);
@@ -152,8 +132,6 @@ export default function Home() {
       let arr1 = [...imageList, ...imagesBGAN];
       let arr2 = [...idList, ...selectedIdsBGAN];
       setImages(arr1);
-      setParams(params => ({...params, filenames: arr1}))
-
       setSelectedIds(arr2);
     } else if (collection === "bgan") {
       setImagesBGAN(imageList);
@@ -161,15 +139,13 @@ export default function Home() {
       let arr1 = [...imageList, ...imagesGlicpix];
       let arr2 = [...idList, ...selectedIdsGlicpix];
       setImages(arr1);
-      setParams(params => ({...params, filenames: arr1}))
-
       setSelectedIds(arr2);
     }
 
     // setImages(e.map((item) => item["src"]));
     // setSelectedIds(e.map((item) => item["value"]));
-    // console.log(images);
-    // console.log(selectedIds);
+    console.log(images);
+    console.log(selectedIds);
     // setImages({e})
   };
 
@@ -347,7 +323,7 @@ export default function Home() {
 
     // console.log(images)
     await setWalletImagesGlicpix(images);
-    // console.log("imagesNames", imagesNames);
+    console.log("imagesNames", imagesNames);
     await setImagesNamesGlicpix(imagesNames);
   };
   const getBGANFiles = async (walletBGAN) => {
@@ -364,7 +340,7 @@ export default function Home() {
           5
         )}.png`;
         let tokenId = `bgan_${g["tokenId"].toString()}`;
-        // console.log("CALM");
+        console.log("CALM");
         images2.push(fileName);
         imagesNames2.push({ tokenId: tokenId, fileName: fileName });
       } else if (type === "HYPED AF (ANIMATED)") {
@@ -399,34 +375,30 @@ export default function Home() {
 
   const setRandomGlicpix = (amount) => {
     let some = sample(imagesNamesGlicpix, { size: parseInt(amount) });
-    // console.log(some);
+    console.log(some);
     let imageList = some.map((item) => item["fileName"]);
     let idList = some.map((item) => item["tokenId"]);
 
-    // console.log(imageList);
+    console.log(imageList);
     setImagesGlicpix(imageList);
     setSelectedIdsGlicpix(idList);
     let arr1 = [...imageList, ...imagesBGAN];
     let arr2 = [...idList, ...selectedIdsBGAN];
     setImages(arr1);
-    setParams(params => ({...params, filenames: arr1}))
-
     setSelectedIds(arr2);
   };
   const setRandomBGAN = (amount) => {
     let some = sample(imagesNamesBGAN, { size: parseInt(amount) });
-    // console.log(some);
+    console.log(some);
     let imageList = some.map((item) => item["fileName"]);
     let idList = some.map((item) => item["tokenId"]);
 
-    // console.log(imageList);
+    console.log(imageList);
     setImagesBGAN(imageList);
     setSelectedIdsBGAN(idList);
     let arr1 = [...imageList, ...imagesGlicpix];
     let arr2 = [...idList, ...selectedIdsGlicpix];
     setImages(arr1);
-    setParams(params => ({...params, filenames: arr1}))
-
     setSelectedIds(arr2);
   };
 
@@ -440,7 +412,6 @@ export default function Home() {
   //   }
 
   // }
-
 
   useEffect(async () => {
     // getGlicpix();
@@ -828,8 +799,6 @@ export default function Home() {
         {/* <button className="bg-white  p-4 my-8 text-4xl text-black border-4 border-white hover:border-black" onClick={() => { } }> Deselect all images </button> */}
       </main>
 
-      {/* PARAMETEEEEEEEERS */}
-
       <div className="flex flex-col border-2  p-4 bg-yellow-300 space-y-4">
         <p className="font-bold text-center text-2xl mb-2">PARAMETERS</p>
 
@@ -837,12 +806,11 @@ export default function Home() {
           <p className="font-bold mr-2">TILE WIDTH:</p>
           <input
             className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
-            // onChange={(e) => setTileWidth(e.target.value)}
-            onChange={(e) => setParams(params => ({...params, tileWidth: e.target.value}))}
+            onChange={(e) => setTileWidth(e.target.value)}
             type="number"
             min={1}
             max={256}
-            value={params.tileWidth}
+            value={tileWidth}
           />
           <p>
             <input
@@ -850,18 +818,14 @@ export default function Home() {
               name="size"
               min="1"
               max="256"
-              value={params.tileWidth}
-              // onChange={(e) => setTileWidth(e.target.value)}
-              onChange={(e) => setParams(params => ({...params, tileWidth: e.target.value}))}
-
+              value={tileWidth}
+              onChange={(e) => setTileWidth(e.target.value)}
             />
           </p>
           <form>
             <div
               className="flex space-x-2"
-              // onChange={(e) => setTileWidth(e.target.value)}
-              onChange={(e) => setParams(params => ({...params, tileWidth: e.target.value}))}
-
+              onChange={(e) => setTileWidth(e.target.value)}
             >
               <input type="radio" value={32} name="gender" /> <label>32</label>
               <input type="radio" value={64} name="gender" /> <label>64</label>
@@ -877,13 +841,11 @@ export default function Home() {
           <p className=" font-bold">TILE HEIGHT:</p>
           <input
             className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
-            onChange={(e) => setParams(params => ({...params, tileHeight: e.target.value}))}
-
-            // onChange={(e) => setTileHeight(e.target.value)}
+            onChange={(e) => setTileHeight(e.target.value)}
             type="number"
             min={1}
             max={256}
-            value={params.tileHeight}
+            value={tileHeight}
           />
           <p>
             <input
@@ -891,18 +853,14 @@ export default function Home() {
               name="size"
               min="1"
               max="256"
-              value={params.tileHeight}
-              onChange={(e) => setParams(params => ({...params, tileHeight: e.target.value}))}
-
-              // onChange={(e) => setTileHeight(e.target.value)}
+              value={tileHeight}
+              onChange={(e) => setTileHeight(e.target.value)}
             />
           </p>
           <form>
             <div
               className="flex space-x-2"
-              onChange={(e) => setParams(params => ({...params, tileHeight: e.target.value}))}
-
-              // onChange={(e) => setTileHeight(e.target.value)}
+              onChange={(e) => setTileHeight(e.target.value)}
             >
               <input type="radio" value={32} name="gender" /> <label>32</label>
               <input type="radio" value={64} name="gender" /> <label>64</label>
@@ -919,14 +877,12 @@ export default function Home() {
             <p className=" font-bold">ZOOM CHANCE:</p>
             <input
               className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
-              onChange={(e) => setParams(params => ({...params, zoomChance: e.target.value}))}
-
-              // onChange={(e) => setzoomChance(e.target.value)}
+              onChange={(e) => setzoomChance(e.target.value)}
               type="number"
               min={0}
               max={100}
               step={10}
-              value={params.zoomChance}
+              value={zoomChance}
             />
             <p>
               <input
@@ -934,10 +890,8 @@ export default function Home() {
                 name="size"
                 min="0"
                 max="100"
-                defaultValue={params.zoomChance}
-                onChange={(e) => setParams(params => ({...params, zoomChance: e.target.value}))}
-
-                // onChange={(e) => setzoomChance(e.target.value)}
+                defaultValue={zoomChance}
+                onChange={(e) => setzoomChance(e.target.value)}
               />
             </p>
           </div>
@@ -945,13 +899,11 @@ export default function Home() {
             <p className="font-bold">MAX ZOOM:</p>
             <input
               className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
-              // onChange={(e) => setmaxZoom(e.target.value)}
-              onChange={(e) => setParams(params => ({...params, maxZoom: e.target.value}))}
-
+              onChange={(e) => setmaxZoom(e.target.value)}
               type="number"
               min={1}
               max={16}
-              value={params.maxZoom}
+              value={maxZoom}
             />
             <p>
               <input
@@ -960,9 +912,7 @@ export default function Home() {
                 min="1"
                 max="16"
                 defaultValue="4"
-                onChange={(e) => setParams(params => ({...params, maxZoom: e.target.value}))}
-
-                // onChange={(e) => setmaxZoom(e.target.value)}
+                onChange={(e) => setmaxZoom(e.target.value)}
               />
             </p>
           </div>
@@ -972,10 +922,8 @@ export default function Home() {
 
             <select
               className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
-              // onChange={(e) => setZoomType(e.target.value)}
-              onChange={(e) => setParams(params => ({...params, zoomType: e.target.value}))}
-
-              value={params.zoomType}
+              onChange={(e) => setZoomType(e.target.value)}
+              value={zoomType}
             >
               <option name="zoomType" value="fixed">
                 FIXED
@@ -1004,14 +952,12 @@ export default function Home() {
             <p className=" font-bold">BIGGY CHANCE:</p>
             <input
               className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
-              onChange={(e) => setParams(params => ({...params, biggyChance: e.target.value}))}
-
-              // onChange={(e) => setBiggyChance(e.target.value)}
+              onChange={(e) => setBiggyChance(e.target.value)}
               type="number"
               min={0}
               max={100}
               step={1}
-              value={params.biggyChance}
+              value={biggyChance}
             />
             <p>
               <input
@@ -1020,9 +966,7 @@ export default function Home() {
                 min="0"
                 max="100"
                 defaultValue="0"
-                onChange={(e) => setParams(params => ({...params, biggyChance: e.target.value}))}
-
-                // onChange={(e) => setBiggyChance(e.target.value)}
+                onChange={(e) => setBiggyChance(e.target.value)}
               />
             </p>
           </div>
@@ -1051,13 +995,11 @@ export default function Home() {
             <p className="font-bold">BIGGY MAX:</p>
             <input
               className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
-              // onChange={(e) => setBiggyMax(e.target.value)}
-              onChange={(e) => setParams(params => ({...params, biggyMax: e.target.value}))}
-
+              onChange={(e) => setBiggyMax(e.target.value)}
               type="number"
               min={1}
               max={16}
-              value={params.biggyMax}
+              value={biggyMax}
             />
             <p>
               <input
@@ -1066,9 +1008,7 @@ export default function Home() {
                 min="1"
                 max="16"
                 defaultValue="8"
-                onChange={(e) => setParams(params => ({...params, biggyMax: e.target.value}))}
-
-                // onChange={(e) => setBiggyMax(e.target.value)}
+                onChange={(e) => setBiggyMax(e.target.value)}
               />
             </p>
           </div>
@@ -1079,9 +1019,7 @@ export default function Home() {
 
           <select
             className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
-            // onChange={(e) => setPatternType(e.target.value)}
-            onChange={(e) => setParams(params => ({...params, patternType: e.target.value}))}
-
+            onChange={(e) => setPatternType(e.target.value)}
           >
             <option name="imagePat" value="single">
               SINGLE
@@ -1120,13 +1058,11 @@ export default function Home() {
             <p className="font-bold mr-2">CA RULE:</p>
             <input
               className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
-              // onChange={(e) => setCaRule(e.target.value)}
-              onChange={(e) => setParams(params => ({...params, caRule: e.target.value}))}
-
+              onChange={(e) => setCaRule(e.target.value)}
               type="number"
               min={1}
               max={256}
-              value={params.caRule}
+              value={caRule}
             />
             <p>
               <input
@@ -1135,9 +1071,7 @@ export default function Home() {
                 min="1"
                 max="256"
                 defaultValue="1"
-                onChange={(e) => setParams(params => ({...params, caRule: e.target.value}))}
-
-                // onChange={(e) => setCaRule(e.target.value)}
+                onChange={(e) => setCaRule(e.target.value)}
               />
             </p>
           </div>
@@ -1149,9 +1083,7 @@ export default function Home() {
 
           <select
             className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
-            // onChange={(e) => setHueType(e.target.value)}
-            onChange={(e) => setParams(params => ({...params, hueType: e.target.value}))}
-
+            onChange={(e) => setHueType(e.target.value)}
           >
             <option name="hue" value="huenone">
               NONE
@@ -1172,13 +1104,11 @@ export default function Home() {
               <p className="font-bold mr-2">HUE STEP</p>
               <input
                 className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
-                // onChange={(e) => setHueStep(e.target.value)}
-                onChange={(e) => setParams(params => ({...params, hueStep: e.target.value}))}
-
+                onChange={(e) => setHueStep(e.target.value)}
                 type="number"
                 min={1}
                 max={360}
-                value={params.hueStep}
+                value={hueStep}
               />
               <p>
                 <input
@@ -1187,9 +1117,7 @@ export default function Home() {
                   min="1"
                   max="360"
                   defaultValue="1"
-                  onChange={(e) => setParams(params => ({...params, hueStep: e.target.value}))}
-
-                  // onChange={(e) => setHueStep(e.target.value)}
+                  onChange={(e) => setHueStep(e.target.value)}
                 />
               </p>
             </div>
@@ -1201,7 +1129,7 @@ export default function Home() {
         <div className="flex items-center text-sm my-1 space-x-4">
           <p className=" font-bold text-base">GLICPIXXX/BGAN RATIO:</p>
           <p className=" font-bold">
-            GLICPIXXX {parseFloat(params.glixbganweight).toFixed(2)}
+            GLICPIXXX {parseFloat(glixbganweight).toFixed(2)}
           </p>
           {/* <input
               className="block bg-white border border-gray-400 hover:border-gray-500 text-center rounded shadow leading-tight font-bold text-black"
@@ -1220,9 +1148,7 @@ export default function Home() {
               max="1.0"
               step="0.01"
               defaultValue={glixbganweight}
-              onChange={(e) => setParams(params => ({...params, glixbganweight: e.target.value}))}
-
-              // onChange={(e) => setglixbganweight(e.target.value)}
+              onChange={(e) => setglixbganweight(e.target.value)}
             />
           </p>
           {/* <input
@@ -1235,25 +1161,15 @@ export default function Home() {
               value={1 - glixbganweight}
             /> */}
           <p className=" font-bold">
-            {(1 - params.glixbganweight).toFixed(2)} BGANPUNKSV2 - (WORKS WITH RAND RANDCOL RANDROW)
+            {(1 - glixbganweight).toFixed(2)} BGANPUNKSV2 - (WORKS WITH RAND RANDCOL RANDROW)
           </p>
         </div>
         <p className="font-bold mr-2">ROTATION / MIRROR TYPE: (SOON)</p>
 
         <div className="flex flex-wrap space-x-2 space-y-2 items-center justify-around">
           <button
-            id=""
-            className="bg-black text-white hover:bg-white hover:text-black p-2 text-xl border-4 border-white hover:border-black"
-            onClick={()=> {setParamsPassed(params)}}
-          >
-            {" "}
-            UPDATE PARAMS
-          </button>
-          
-          <button
             id="generatebutton"
             className="bg-black text-white hover:bg-white hover:text-black p-2 text-xl border-4 border-white hover:border-black"
-            // onClick={()=> {setParamsPassed(params);console.log(params,paramsPassed)}}
           >
             {" "}
             GENERATE PATTERN
@@ -1283,17 +1199,11 @@ export default function Home() {
         </div>
         <p className="text-center">Until I implement it here, save your image and upload it to <a className="text-red-500 hover:text-green-800" target="_blank" href="https://timothybauman.com/pixelsorter/">https://timothybauman.com/pixelsorter/</a> to sort pixels for an even cooler result! Will focus on more post processing stuff in the future.</p>
       </div>
-      
 
       <div className="">
         {images.length > 0 ? (
           <div className="overflow-auto">
             <ReactP5Wrapper
-              sketch={sketch}
-              params = {paramsPassed}
-              
-            />
-            {/* <ReactP5Wrapper
               sketch={sketch}
               filenames={images}
               minRes={minRes}
@@ -1310,7 +1220,7 @@ export default function Home() {
               // biggyMin={biggyMin}
               biggyMax={biggyMax}
               glixbganweight={glixbganweight}
-            /> */}
+            />
           </div>
         ) : (
           <></>

@@ -342,72 +342,70 @@ export default function sketch(p5) {
   /// HUE SHIFT END
 
   p5.updateWithProps = (props) => {
-    // console.log(props)
-
     // console.log("ALL PROPS", props);
-    // if (props.params.filenames !== filenames) {
-      // console.log("FILENAMES PROP", props.params.params.filenames);
-      filenames = props.params.filenames;
+    if (props.filenames !== filenames) {
+      // console.log("FILENAMES PROP", props.filenames);
+      filenames = props.filenames;
       p5.preload();
       // return
-    // }
-    // if (props.params.minRes) {
-    //   // console.log("FILENAMES PROP",props.params.minRes)
-    //   minreso = parseInt(props.params.minRes)
+    }
+    // if (props.minRes) {
+    //   // console.log("FILENAMES PROP",props.minRes)
+    //   minreso = parseInt(props.minRes)
     //   p5.resizeCanvas(ww(), hh());
 
     // }
-    // if (props.params.glixbganweight !== glixbganweight) {
-      glixbganweight = props.params.glixbganweight;
-      // return;
-    // }
-    // if (props.params.tileWidth !== tilewidth) {
-      tilewidth = parseInt(props.params.tileWidth);
-      tileheight = parseInt(props.params.tileHeight);
+    if (props.glixbganweight !== glixbganweight) {
+      glixbganweight = props.glixbganweight;
+      return;
+    }
+    if (props.tileWidth !== tilewidth) {
+      tilewidth = parseInt(props.tileWidth);
       p5.resizeCanvas(ww(), hh());
-      // return;
-    // }
-    // if (props.params.hueType !== hueType) {
-      hueType = props.params.hueType;
-      // return;
-    // }
-    // if (props.params.tileHeight !== tileheight) {
-      // p5.resizeCanvas(ww(), hh());
+      return;
+    }
+    if (props.hueType !== hueType) {
+      hueType = props.hueType;
+      return;
+    }
+    if (props.tileHeight !== tileheight) {
+      tileheight = parseInt(props.tileHeight);
+      p5.resizeCanvas(ww(), hh());
       // return
-    // }
-    // if (props.params.patternType !== patternType) {
-      patternType = props.params.patternType;
+    }
+    if (props.patternType !== patternType) {
+      patternType = props.patternType;
       // return
-    // }
-    // if (props.params.caRule !== caRule) {
-      caRule = props.params.caRule;
+    }
+    if (props.caRule !== caRule) {
+      caRule = props.caRule;
       // return
-    // }
-    // if (props.params.zoomChance !== zoomChance) {
-      zoomChance = props.params.zoomChance;
+    }
+    if (props.zoomChance !== zoomChance) {
+      zoomChance = props.zoomChance;
       // return
-    // }
-    // if (props.params.maxZoom !== maxZoom) {
-      maxZoom = props.params.maxZoom;
+    }
+    if (props.maxZoom !== maxZoom) {
+      maxZoom = props.maxZoom;
       // console.log(maxZoom)
       // return
-    // }
-    // if (props.params.zoomType !== zoomType) {
-      zoomType = props.params.zoomType;
+    }
+    if (props.zoomType !== zoomType) {
+      zoomType = props.zoomType;
       // return
-    // }
-    // if (props.params.biggyChance !== biggyChance) {
-      biggyChance = props.params.biggyChance;
+    }
+    if (props.biggyChance !== biggyChance) {
+      biggyChance = props.biggyChance;
       // return
-    // }
-    // if (props.params.biggyMin !== biggyMin) {
-      biggyMin = props.params.biggyMin;
+    }
+    if (props.biggyMin !== biggyMin) {
+      biggyMin = props.biggyMin;
       // return
-    // }
-    // if (props.params.biggyMax !== biggyMax) {
-      biggyMax = props.params.biggyMax;
+    }
+    if (props.biggyMax !== biggyMax) {
+      biggyMax = props.biggyMax;
       // return
-    // }
+    }
     // p5.redraw();
   };
 
@@ -519,9 +517,9 @@ export default function sketch(p5) {
         }
       })
       .filter((item) => item !== null);
-    // console.log("testing", bgans);
+    console.log("testing", bgans);
     let splitList = { glix: glixx, bgan: bgans };
-    // console.log("SPLIT", splitList);
+    console.log("SPLIT", splitList);
     // console.log("bgan",bgans)
     //   console.log("PATTERN TYPE:",patternType)
     switch (patternType) {
