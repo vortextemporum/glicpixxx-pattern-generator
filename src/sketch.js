@@ -417,7 +417,7 @@ export default function sketch(p5) {
     let im;
     //   console.log(filenames)
     for (im in filenames) {
-      images.push(p5.loadImage(filenames[im]));
+      images.push(p5.loadImage(filenames[im] + "?not-from-cache-please"));
     }
     // camel = p5.loadImage('https://berk.mypinata.cloud/ipfs/QmWKxFR8PJUL1BijXs2UyNQuNAVPMFwx5Lefr3PtmS6oK8');
     // console.log(images);
