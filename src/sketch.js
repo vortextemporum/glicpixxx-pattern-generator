@@ -345,12 +345,12 @@ export default function sketch(p5) {
     // console.log(props)
 
     // console.log("ALL PROPS", props);
-    // if (props.params.filenames !== filenames) {
+    if (props.params.filenames !== filenames) {
       // console.log("FILENAMES PROP", props.params.params.filenames);
       filenames = props.params.filenames;
       p5.preload();
       // return
-    // }
+    }
     // if (props.params.minRes) {
     //   // console.log("FILENAMES PROP",props.params.minRes)
     //   minreso = parseInt(props.params.minRes)
@@ -417,7 +417,7 @@ export default function sketch(p5) {
     let im;
     //   console.log(filenames)
     for (im in filenames) {
-      images.push(p5.loadImage(filenames[im] + "?not-from-cache-please"));
+      images.push(p5.loadImage(filenames[im]));
     }
     // camel = p5.loadImage('https://berk.mypinata.cloud/ipfs/QmWKxFR8PJUL1BijXs2UyNQuNAVPMFwx5Lefr3PtmS6oK8');
     // console.log(images);

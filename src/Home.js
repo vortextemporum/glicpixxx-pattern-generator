@@ -799,7 +799,7 @@ export default function Home() {
                 type="range"
                 name="size"
                 min={1}
-                max={imagesNamesGlicpix.length}
+                max={50}
                 defaultValue={1}
                 onChange={(e) => setRandomGlicpixAmount(e.target.value)}
               />
@@ -833,7 +833,7 @@ export default function Home() {
                 type="range"
                 name="size"
                 min={1}
-                max={imagesNamesBGAN.length}
+                max={50}
                 defaultValue={1}
                 onChange={(e) => setRandomBGANAmount(e.target.value)}
               />
