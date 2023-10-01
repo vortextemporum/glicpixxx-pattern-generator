@@ -1162,7 +1162,7 @@ export default function Home() {
             </option>
           </select>
         </div>
-        {patternType === "ca" ? (
+        {params.patternType === "ca" ? (
           <div className="flex items-center text-sm my-1">
             <p className="font-bold mr-2">CA RULE:</p>
             <input
